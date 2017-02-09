@@ -1,0 +1,28 @@
+{
+    "Concurrency": 4,
+    "Deadline": "5m",
+    "DisableAll": true,
+    "Enable": [
+        "interfacer",
+        "unused",
+        "aligncheck",
+        "errcheck",
+        "goconst",
+        "goimports",
+        "ineffassign",
+        "staticcheck",
+        "structcheck",
+        "unconvert",
+        "deadcode",
+        "golint",
+        "misspell",
+        "gocyclo",
+        "gas",
+        "gosimple",
+        "varcheck",
+        "dupl"
+    ],
+    "Force": true,
+    "Update": true,
+    "Vendor": true
+}

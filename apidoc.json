@@ -1,0 +1,10 @@
+{
+    "description": "API documentation",
+    "header": {
+        "filename": "doc/apidoc/introduction.md",
+        "title": "Introduction"
+    },
+    "name": "Nebulo",
+    "title": "Nebulo",
+    "url": "https://api.nebulo.io/v1/"
+}

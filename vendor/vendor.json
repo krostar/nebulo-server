@@ -1,0 +1,121 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "2Fy1Y6Z3lRRX1891WF/+HT4XS2I=",
+			"path": "github.com/dgrijalva/jwt-go",
+			"revision": "2268707a8f0843315e2004ee4f1d021dc08baedf",
+			"revisionTime": "2017-02-01T22:58:49Z"
+		},
+		{
+			"checksumSHA1": "KhsRogdBpJZ2jgO35be/eM1qyqc=",
+			"path": "github.com/jessevdk/go-flags",
+			"revision": "4e64e4a4e2552194cf594243e23aa9baf3b4297e",
+			"revisionTime": "2016-12-15T10:56:53Z"
+		},
+		{
+			"checksumSHA1": "qUd2AA/+1E7WacQ/2pNaSiU8azM=",
+			"path": "github.com/labstack/echo",
+			"revision": "a8b6864be328fcb5c2d96d32c75b750f84e0e4be",
+			"revisionTime": "2017-02-02T19:50:17Z"
+		},
+		{
+			"checksumSHA1": "22chhTocVf44fcbgok8GNzJMFK8=",
+			"path": "github.com/labstack/echo/middleware",
+			"revision": "a8b6864be328fcb5c2d96d32c75b750f84e0e4be",
+			"revisionTime": "2017-02-02T19:50:17Z"
+		},
+		{
+			"checksumSHA1": "NvfQq6Y6kh9cMw+y1m00ivEd5b4=",
+			"path": "github.com/labstack/gommon/bytes",
+			"revision": "f72d3c883f8ea180da8f085dd320804c41332ad1",
+			"revisionTime": "2017-01-12T04:03:50Z"
+		},
+		{
+			"checksumSHA1": "R6DzcBLEP0BONPpsyr+11N7xh5w=",
+			"path": "github.com/labstack/gommon/color",
+			"revision": "f72d3c883f8ea180da8f085dd320804c41332ad1",
+			"revisionTime": "2017-01-12T04:03:50Z"
+		},
+		{
+			"checksumSHA1": "uHA6zbtxzJce4r+6uk8zu11qkuk=",
+			"path": "github.com/labstack/gommon/log",
+			"revision": "f72d3c883f8ea180da8f085dd320804c41332ad1",
+			"revisionTime": "2017-01-12T04:03:50Z"
+		},
+		{
+			"checksumSHA1": "XvsHo25Kr69E5xxTDatXzCQc6sI=",
+			"path": "github.com/labstack/gommon/random",
+			"revision": "f72d3c883f8ea180da8f085dd320804c41332ad1",
+			"revisionTime": "2017-01-12T04:03:50Z"
+		},
+		{
+			"checksumSHA1": "I4njd26dG5hxFT2nawuByM4pxzY=",
+			"path": "github.com/mattn/go-colorable",
+			"revision": "d228849504861217f796da67fae4f6e347643f15",
+			"revisionTime": "2016-11-03T16:00:40Z"
+		},
+		{
+			"checksumSHA1": "xZuhljnmBysJPta/lMyYmJdujCg=",
+			"path": "github.com/mattn/go-isatty",
+			"revision": "30a891c33c7cde7b02a981314b4228ec99380cca",
+			"revisionTime": "2016-11-23T14:36:37Z"
+		},
+		{
+			"checksumSHA1": "LTOa3BADhwvT0wFCknPueQALm8I=",
+			"path": "github.com/valyala/bytebufferpool",
+			"revision": "e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7",
+			"revisionTime": "2016-08-17T18:16:52Z"
+		},
+		{
+			"checksumSHA1": "j7lWhgAteszPecjIkS12+tjXE2E=",
+			"path": "github.com/valyala/fasttemplate",
+			"revision": "d090d65668a286d9a180d43a19dfdc5dcad8fe88",
+			"revisionTime": "2017-01-12T11:45:30Z"
+		},
+		{
+			"checksumSHA1": "D1l731k467E5E4Uau+cQKEYkaVY=",
+			"path": "golang.org/x/crypto/acme",
+			"revision": "92783773f0d5c65e68a806909423bea53c78df01",
+			"revisionTime": "2017-02-08T13:36:45Z"
+		},
+		{
+			"checksumSHA1": "MG1frAM4p4lg1ioOhUa7rjN3xm0=",
+			"path": "golang.org/x/crypto/acme/autocert",
+			"revision": "92783773f0d5c65e68a806909423bea53c78df01",
+			"revisionTime": "2017-02-08T13:36:45Z"
+		},
+		{
+			"checksumSHA1": "Y+HGqEkYM15ir+J93MEaHdyFy0c=",
+			"path": "golang.org/x/net/context",
+			"revision": "236b8f043b920452504e263bc21d354427127473",
+			"revisionTime": "2017-02-06T03:21:01Z"
+		},
+		{
+			"checksumSHA1": "WHc3uByvGaMcnSoI21fhzYgbOgg=",
+			"path": "golang.org/x/net/context/ctxhttp",
+			"revision": "236b8f043b920452504e263bc21d354427127473",
+			"revisionTime": "2017-02-06T03:21:01Z"
+		},
+		{
+			"checksumSHA1": "uTQtOqR0ePMMcvuvAIksiIZxhqU=",
+			"path": "golang.org/x/sys/unix",
+			"revision": "7a6e5648d140666db5d920909e082ca00a87ba2c",
+			"revisionTime": "2017-02-01T04:15:14Z"
+		},
+		{
+			"checksumSHA1": "O9E8G234qCcPA7f7srGpnawDmMs=",
+			"path": "gopkg.in/tylerb/graceful.v1",
+			"revision": "4654dfbb6ad53cb5e27f37d99b02e16c1872fbbb",
+			"revisionTime": "2017-02-01T19:58:55Z"
+		},
+		{
+			"checksumSHA1": "KSiX/PVkEX32Pv07aOSJfOzXWRM=",
+			"path": "gopkg.in/validator.v2",
+			"revision": "0a9835d809fb647a62611d30cb792e0b5dd65b11",
+			"revisionTime": "2016-08-24T14:25:09Z"
+		}
+	],
+	"rootPath": "github.com/krostar/nebulo"
+}
