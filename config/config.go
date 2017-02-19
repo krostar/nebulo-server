@@ -25,7 +25,8 @@ type Options struct {
 
 var (
 	// Config is the active configuration of the program
-	Config                 Options
+	Config Options
+
 	parser                 *flags.Parser
 	atLeastOneConfigLoaded bool
 )

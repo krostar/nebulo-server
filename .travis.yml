@@ -36,19 +36,15 @@ before_script:
 
 script:
   - echo "script step"
-  - ([ -n "${TRAVIS_TAG}" ] && make release TAG=${TRAVIS_TAG}) || true
+  - ([ -n "${TRAVIS_TAG}" ] && make release TAG=${TRAVIS_TAG}) || make test
 
 deploy:
   provider: releases
   api_key:
     secure: gpqOYCJuzMXZtUWvxpk6BMJlLJczGk6q0tfRQ1tf31W403KuYVWIR8dhrjMtElHWoE2lvjpMNPMlhshiwofxQHnyeOOv1qxLYsGLglQO/u1If6tQsmtkkoJC8uRqauIYCo8OYXTkOpztBGxiDGNo2Uyl0oK8kMlbN3N76U64U+9B0L1W3YHa7HCtrHdHhRhE92VORkjqjccwzL3961azHreyNat96j6ZrvS+Xrl+lXKrxOVOUEa62cixf2Oea6dM4TfmkvUs4AR4tGpJsfGc/anXBfngnV9khe/H3/dngMyen0W9Hs4NIgGUBHYVEYi5OhDdQm36UhMSyxvMcHyT4CCyjIqrEmTAqoBl8Vm4xsbQVDQ4JzK3adtcrEYspmhXl1aMGMxgKYevjUBGe/XPpGdmmVk+fakL1VGPgJDbuEpEnJZlawHcRKv/mlNm63xysGmEjDgTqf6Ts88Ss7oO1Qzk25QRR5EfyXIIkiyPxi3KIojupI9s2CvCQ2VhyzpVrtY1VyqCZgjG5497aPBnn5piD/isgupsGmLqUTA9lS0WhoA9pq7lYvc94manHykiHjl57eOVqRCEfRFdC8e3Y2KxXvF6I2B0+mfjR/1RCoFvVD+gTpa4zbR+yGKwrLbJgh5+iZVqy354DS5/sYjVfWxMp+s2k69gYZDek6YrZkw=
-  file:
-    - "./release/nebulo-full-${TRAVIS_TAG}.zip"
-    - "./release/nebulo-full-${TRAVIS_TAG}.tar.gz"
-    - "./release/nebulo-doc-${TRAVIS_TAG}.zip"
-    - "./release/nebulo-doc-${TRAVIS_TAG}.tar.gz"
-    - "./release/nebulo-bin-${TRAVIS_TAG}.zip"
-    - "./release/nebulo-bin-${TRAVIS_TAG}.tar.gz"
   skip_cleanup: true
+  file_glob: true
+  file:
+    - "./release/nebulo-*-*-${TRAVIS_TAG}.tar.gz"
   on:
     tags: true
