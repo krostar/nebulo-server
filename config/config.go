@@ -7,20 +7,22 @@ import (
 	"github.com/krostar/nebulo/env"
 	"github.com/krostar/nebulo/log"
 	"github.com/krostar/nebulo/returncode"
+	_ "github.com/krostar/nebulo/validator" // used to init custom validators before using them
 	validator "gopkg.in/validator.v2"
 )
 
-//
-
 // Options list all the available options of the program, with details useful for help command
 type Options struct {
-	Help        bool   `short:"h" long:"help" description:"show this help message" hidden:"true" validate:"-"`
-	Config      string `short:"c" long:"config" description:"specify a configuration file (be cautious on infinite-recursive-configuration)"`
-	Environment string `short:"e" long:"environment" choice:"dev" choice:"alpha" choice:"prod" description:"environment to use for external services connection purpose - this parameter is required" validate:"regexp=^(dev|alpha|prod)$"`
-	Address     string `short:"a" long:"address" description:"override environment address to use to listen to" default-mask:"depend on -e (environment)" validate:"-"`
-	Port        int    `short:"p" long:"port" description:"override port to use to listen to" default-mask:"depend on -e (environment)" validate:"-"`
-	LogFile     string `short:"l" long:"logging-file" description:"the file where write the log (if not defined, logs are writted on standart output)" validate:"-"`
-	Verbose     string `short:"v" long:"verbose" choice:"critical" choice:"error" choice:"warning" choice:"info" choice:"request" choice:"debug" description:"level of information write on standart output or in a file" default-mask:"debug"`
+	Help             bool   `short:"h" long:"help" description:"show this help message" no-ini:"true" validate:"-"`
+	ConfigGeneration string `long:"config-gen" description:"generate a configuration file for the actual configuration to the specified file and quit" no-ini:"true" validate:"-"`
+	ConfigFile       string `short:"c" long:"config-file" description:"specify a configuration file (be cautious on infinite-recursive-configuration)" validate:"file=omitempty+readable"`
+	Environment      string `short:"e" long:"environment" choice:"dev" choice:"alpha" choice:"prod" description:"environment to use for external services connection purpose - this parameter is required" validate:"regexp=^(dev|alpha|prod)$"`
+	Address          string `short:"a" long:"address" description:"override environment address to use to listen to" default-mask:"depend on -e (environment)"`
+	Port             int    `short:"p" long:"port" description:"override environment port to use to listen to" default-mask:"depend on -e (environment)"`
+	TLSCertFile      string `long:"tls-crt-file" description:"tls certificate file used to encrypt communication" validate:"file=omitempty+readable"`
+	TLSKeyFile       string `long:"tls-key-file" description:"tls certificate key used to encrypt communication" validate:"file=omitempty+readable"`
+	LogFile          string `short:"l" long:"logging-file" description:"the file where write the log" default-mask:"no file, standart output" validate:"file=omitempty+writable"`
+	Verbose          string `short:"v" long:"verbose" choice:"quiet" choice:"critical" choice:"error" choice:"warning" choice:"info" choice:"request" choice:"debug" description:"level of information to write on standart output or in a file" default-mask:"debug" validate:"regexp=^(quiet|critical|error|warning|info|request|debug)?$"`
 }
 
 var (
@@ -38,14 +40,24 @@ func init() {
 
 	// try to load configuration from default system location
 	if err = FromINIFile("/etc/nebulo/config.ini", &Config); err != nil {
-		log.Warningln("Error while parsing configuration from default directory config.ini: ", err)
+		if os.IsNotExist(err) {
+			log.Warningln("Error while opening configuration from default directory config.ini: does that file exist ?")
+		} else {
+			log.Criticalln("unable to parse file:", err)
+			panic(err)
+		}
 	} else {
 		successfullyLoaded(&Config, "default directory config.ini")
 	}
 
 	// try to override configuration via default folder location
 	if err = FromINIFile("./config.ini", &Config); err != nil {
-		log.Warningln("Error while parsing configuration from current directory config.ini: ", err)
+		if os.IsNotExist(err) {
+			log.Warningln("Error while parsing configuration from current directory config.ini: does that file exist ?")
+		} else {
+			log.Criticalln("unable to parse file:", err)
+			panic(err)
+		}
 	} else {
 		successfullyLoaded(&Config, "current directory config.ini")
 	}
@@ -85,10 +97,22 @@ func successfullyLoaded(config *Options, from string) {
 		os.Exit(returncode.HELP)
 	}
 
+	// if the user need help, the program has to quit
+	if config.ConfigGeneration != "" {
+		log.Infoln("Configuration generation parameter detected, program will generate configuration into default file and quit")
+		// IniIncludeDefaults indicates that default values should be written.
+
+		if err := flags.NewIniParser(parser).WriteFile(config.ConfigGeneration, flags.IniIncludeDefaults|flags.IniCommentDefaults|flags.IniIncludeComments); err != nil {
+			log.Criticalln(err)
+			panic(err)
+		}
+		os.Exit(returncode.CONFIG)
+	}
+
 	// if we have the config parameter, we need to overload this config
-	if confFile := config.Config; confFile != "" {
-		config.Config = ""
-		log.Warningln("The parameter -c or --config is detected, the specified file will override the current configuration")
+	if confFile := config.ConfigFile; confFile != "" {
+		config.ConfigFile = ""
+		log.Warningln("The parameter -c or --config-file is detected, the specified file will override the current configuration")
 
 		if err := FromINIFile(confFile, config); err != nil {
 			log.Errorln("Error while parsing configuration from specified configuration file "+confFile, err)

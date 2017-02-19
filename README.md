@@ -28,12 +28,16 @@ Usage:
   nebulo
 
 Application Options:
-  -c, --config=                                             specify a configuration file (be cautious on infinite-recursive-configuration)
+  -h, --help                                                show this help message
+      --config-gen=                                         generate a configuration file for the actual configuration to the specified file and quit
+  -c, --config-file=                                        specify a configuration file (be cautious on infinite-recursive-configuration)
   -e, --environment=[dev|alpha|prod]                        environment to use for external services connection purpose - this parameter is required
   -a, --address=                                            override environment address to use to listen to (default: depend on -e (environment))
-  -p, --port=                                               override port to use to listen to (default: depend on -e (environment))
-  -l, --logging-file=                                       the file where write the log (if not defined, logs are writted on standart output)
-  -v, --verbose=[critical|error|warning|info|request|debug] level of information write on standart output or in a file (default: debug)
+  -p, --port=                                               override environment port to use to listen to (default: depend on -e (environment))
+      --tls-crt-file=                                       tls certificate file used to encrypt communication
+      --tls-key-file=                                       tls certificate key used to encrypt communication
+  -l, --logging-file=                                       the file where write the log (default: no file, standart output)
+  -v, --verbose=[quiet|critical|error|warning|info|request|debug] level of information to write on standart output or in a file (default: debug)
 ```
 
 
@@ -73,8 +77,12 @@ $> go get -u github.com/kardianos/govendor
 #### Use our Makefile
 We are using a Makefile to everything we need (build, release, tests, documentation, ...).
 ```sh
-# Build the project
+# Build the project (by default generated binary will be in <root>/build/bin/nebulo)
 $> make
+# Run the project
+$> make run
+# Run the project with command line option
+$> make ARGS="--environment dev" run
 # Test the project
 $> make test
 # Generate documentation

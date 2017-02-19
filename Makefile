@@ -1,6 +1,9 @@
 # Binary name to generate
 BINARY_NAME			:= nebulo
 
+# Used for generation and copy in archive
+CONFIGURATION_FILE	:= config.sample.ini
+
 # Overload this variable on make call 'make <function> CI=1' to add debug information
 #	and remove terminal colors
 CI					?= 0
@@ -43,16 +46,18 @@ all : $(BINARY_NAME)
 
 # Compile for current os/arch and save binary in $DIR_BUILD folder
 $(BINARY_NAME):
-	echo $(DIR_PROJECT)
 	$Q echo -e '$(COLOR_PRINT)Building $(BINARY_NAME)...$(COLOR_RESET)'
 	$Q mkdir -p $(DIR_BUILD)/bin
 	$Q go build -o $(DIR_BUILD)/bin/$(BINARY_NAME) $(BUILD_FLAGS)
 	$Q echo -e '$(COLOR_SUCCESS)Compilation done without errors$(COLOR_RESET)'
 
+config: $(BINARY_NAME)
+	$Q [ "$(shell $(DIR_BUILD)/bin/$(BINARY_NAME) --config-gen=$(CONFIGURATION_FILE) --verbose quiet 2>&1 > /dev/null || echo $$? && false)" = "102" ]
+
 # Compile for current os/arch and run binary
 run: $(BINARY_NAME)
 	$Q echo -e '$(COLOR_PRINT)Running $(BINARY_NAME):$(COLOR_RESET)'
-	$Q ./$(DIR_BUILD)/bin/$(BINARY_NAME)
+	$Q $(DIR_BUILD)/bin/$(BINARY_NAME) ${ARGS}
 	$Q echo -e '$(COLOR_PRINT)Terminated$(COLOR_RESET)'
 
 # Remove all non-essentials directories and files
@@ -102,7 +107,7 @@ test_unit:
 test: test_dependencies test_code test_unit
 
 # Compile and save all necessaries file for each couple os/arch
-release_build: test
+release_build: test config
 	$Q echo -e '$(COLOR_PRINT)List of files beeing compiled:$(COLOR_RESET)'
 	$Q go list -f '{{.GoFiles}}' ./...
 	$Q mkdir -p $(DIR_BUILD)/bin
@@ -117,11 +122,11 @@ release_build: test
 
 # Generate a release ; multiple files are going to be generated:
 #	a documentation archive, a runnable environment archive for each couple os/arch
-release: clean doc release_build
+release: config clean doc release_build
 	$Q [ -n "$(TAG)" ] || (echo "Please add the release tag with the TAG=x.x.x environment variable" && false)
 	$Q mkdir -p $(DIR_RELEASE) $(DIR_RELEASE_TMP)/$(BINARY_NAME)
 	$Q cp $(DIR_BUILD)/bin/* $(DIR_RELEASE_TMP)/$(BINARY_NAME)
-	$Q cp config.sample.ini $(DIR_RELEASE_TMP)/$(BINARY_NAME)/config.ini
+	$Q cp $(CONFIGURATION_FILE) $(DIR_RELEASE_TMP)/$(BINARY_NAME)/config.ini
 	$Q tar --create --gzip --file=$(DIR_RELEASE)/$(BINARY_NAME)-doc-$(TAG).tar.gz -C $(DIR_BUILD)/ doc/
 	$Q for os in $(RELEASE_OS) ; do \
 		echo "Creating $(BINARY_NAME)-$$os archives..."; \
@@ -130,4 +135,4 @@ release: clean doc release_build
 	done
 
 
-.PHONY: all $(BINARY_NAME) run build clean doc_api doc godoc test_dependencies test_code test_unit test release_build release
+.PHONY: all $(BINARY_NAME) config run build clean doc_api doc godoc test_dependencies test_code test_unit test release_build release

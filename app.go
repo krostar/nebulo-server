@@ -27,7 +27,13 @@ func main() {
 
 	log.Infoln("Starting nebulo api", BuildVersion)
 
-	if err := router.Run(env.Environment[config.Config.Environment]); err != nil {
+	var err error
+	if config.Config.TLSCertFile != "" && config.Config.TLSKeyFile != "" {
+		err = router.RunTLS(env.Environment[config.Config.Environment], config.Config.TLSCertFile, config.Config.TLSKeyFile)
+	} else {
+		err = router.Run(env.Environment[config.Config.Environment])
+	}
+	if err != nil {
 		log.Criticalln(err)
 		os.Exit(returncode.ROUTERFAILED)
 	}

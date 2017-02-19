@@ -28,7 +28,6 @@ install:
   - go get -u github.com/alecthomas/gometalinter
   - govendor sync -v
   - gometalinter --install --update --force
-  - chmod +x doc/godoc/save.sh
 
 before_script:
   - echo "before_script step"
@@ -45,6 +44,6 @@ deploy:
   skip_cleanup: true
   file_glob: true
   file:
-    - "./release/nebulo-*-*-${TRAVIS_TAG}.tar.gz"
+    - "./release/nebulo-*-${TRAVIS_TAG}*.tar.gz"
   on:
     tags: true
