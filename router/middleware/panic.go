@@ -1,18 +1,20 @@
 package middleware
 
 import (
+	"encoding/base64"
 	"fmt"
 	"runtime"
 
-	"github.com/krostar/nebulo/handler"
 	"github.com/krostar/nebulo/log"
+	"github.com/krostar/nebulo/router/handler"
 	"github.com/krostar/nebulo/router/httperror"
 
 	"github.com/labstack/echo"
 )
 
-// Recover returns a middleware which recovers from panics anywhere in the chain
-// and handles the control to the centralized HTTPErrorHandler.
+// Recover return a middleware which recover from panics
+// anywhere in the chain and handle the error
+// with the centralized custom errors handler.
 func Recover() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
@@ -27,14 +29,26 @@ func Recover() echo.MiddlewareFunc {
 						err = fmt.Errorf("%v", r)
 					}
 
-					// print stack
+					// error stack
 					stack := make([]byte, 64*1024)
 					length := runtime.Stack(stack, true)
-					log.Criticalln(err, "PANIC RECOVER", string(stack[:length]))
 
-					// make a nebulo-http-compliant-error
-					errr := httperror.HTTPInternalServerError(err)
-					if err = c.JSON(errr.Code, httperror.New(errr.Code, "_", errr)); err != nil {
+					var printableStack string
+					var errHE *httperror.HTTPError
+
+					// useful informations can be shown for debug pupose
+					if c.Echo().Debug {
+						printableStack = "\n" + string(stack[:length])
+						errHE = httperror.HTTPInternalServerError(err)
+					} else {
+						printableStack = base64.StdEncoding.EncodeToString(stack[:length])
+						errHE = httperror.HTTPInternalServerError(nil)
+					}
+
+					log.Logln(log.CRITICAL, "PANIC RECOVER", 4, err, printableStack)
+
+					// return a nebulo http compliant error
+					if err = c.JSON(errHE.Code, httperror.New(errHE.Code, "_", errHE)); err != nil {
 						log.Criticalln(handler.ErrUnableToSend, err)
 					}
 				}

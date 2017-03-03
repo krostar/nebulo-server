@@ -22,7 +22,7 @@ func (e *HTTPError) Error() (err string) {
 	return err
 }
 
-// HTTPUnsupportedMediaTypeError handle an HTTP error
+// HTTPUnsupportedMediaTypeError handle the 415 HTTP error
 func HTTPUnsupportedMediaTypeError(parameters interface{}) (herr *HTTPError) {
 	if errType, ok := parameters.(error); ok {
 		parameters = errType.Error()
@@ -34,7 +34,7 @@ func HTTPUnsupportedMediaTypeError(parameters interface{}) (herr *HTTPError) {
 	}
 }
 
-// HTTPBadRequestError handle an HTTP error
+// HTTPBadRequestError handle the 400 HTTP error
 func HTTPBadRequestError(parameters interface{}) (herr *HTTPError) {
 	if errType, ok := parameters.(error); ok {
 		parameters = errType.Error()
@@ -46,7 +46,7 @@ func HTTPBadRequestError(parameters interface{}) (herr *HTTPError) {
 	}
 }
 
-// HTTPNotFoundError handle an HTTP error
+// HTTPNotFoundError handle the 404 HTTP error
 func HTTPNotFoundError(parameters interface{}) (herr *HTTPError) {
 	if errType, ok := parameters.(error); ok {
 		parameters = errType.Error()
@@ -58,7 +58,7 @@ func HTTPNotFoundError(parameters interface{}) (herr *HTTPError) {
 	}
 }
 
-// HTTPUnauthorizedError handle an HTTP error
+// HTTPUnauthorizedError handle the 401 HTTP error
 func HTTPUnauthorizedError(parameters interface{}) (herr *HTTPError) {
 	if errType, ok := parameters.(error); ok {
 		parameters = errType.Error()
@@ -70,7 +70,7 @@ func HTTPUnauthorizedError(parameters interface{}) (herr *HTTPError) {
 	}
 }
 
-// HTTPMethodNotAllowedError handle an HTTP error
+// HTTPMethodNotAllowedError handle the 405 HTTP error
 func HTTPMethodNotAllowedError(parameters interface{}) (herr *HTTPError) {
 	if errType, ok := parameters.(error); ok {
 		parameters = errType.Error()
@@ -82,7 +82,8 @@ func HTTPMethodNotAllowedError(parameters interface{}) (herr *HTTPError) {
 	}
 }
 
-// HTTPRequestEntityTooLargeError handle an HTTP error
+// HTTPRequestEntityTooLargeError handle the 413 HTTP error,
+// also know as "Payload too large"
 func HTTPRequestEntityTooLargeError(parameters interface{}) (herr *HTTPError) {
 	if errType, ok := parameters.(error); ok {
 		parameters = errType.Error()
@@ -94,7 +95,7 @@ func HTTPRequestEntityTooLargeError(parameters interface{}) (herr *HTTPError) {
 	}
 }
 
-// HTTPInternalServerError handle an HTTP error
+// HTTPInternalServerError handle the 500 HTTP error
 func HTTPInternalServerError(parameters interface{}) (herr *HTTPError) {
 	if errType, ok := parameters.(error); ok {
 		parameters = errType.Error()

@@ -3,28 +3,37 @@ package log
 // Verbose is the type of all the available verbose
 type Verbose int
 
-// QUIET will hide every information
-const QUIET = Verbose(0)
+const (
+	// QUIET hide every information
+	QUIET = Verbose(0)
 
-// CRITICAL is a verbosity level
-const CRITICAL = Verbose(1)
+	// CRITICAL hide most informations,
+	// only the worst errors are shown
+	CRITICAL = Verbose(1)
 
-// ERROR is a verbosity level
-const ERROR = Verbose(2)
+	// ERROR hide all non-essential informations,
+	// only errors are shown
+	ERROR = Verbose(2)
 
-// WARNING is a verbosity level
-const WARNING = Verbose(3)
+	// WARNING show all errors,
+	// even thoses who aren't
+	WARNING = Verbose(3)
 
-// INFO is a verbosity level
-const INFO = Verbose(4)
+	// INFO show every important steps of the workflow,
+	// like server start, stop, update things, ...
+	INFO = Verbose(4)
 
-// REQUEST is a verbosity level
-const REQUEST = Verbose(5)
+	// REQUEST show the same messages as INFO,
+	// but show also the requests made by users
+	REQUEST = Verbose(5)
 
-// DEBUG is the maximum verbosity level
-const DEBUG = Verbose(6)
+	// DEBUG is the maximum verbosity level,
+	// every pieces of useful informations are printed
+	DEBUG = Verbose(6)
+)
 
-// VerboseMapping is the translation between the verbose common name and the verbose type
+// VerboseMapping is the translation between
+// the verbose common name and the verbose type
 var VerboseMapping = map[string]Verbose{
 	"quiet":    QUIET,
 	"critical": CRITICAL,
@@ -35,7 +44,8 @@ var VerboseMapping = map[string]Verbose{
 	"debug":    DEBUG,
 }
 
-// VerboseReverseMapping is the translation between the verbosity type and the verbose common name
+// VerboseReverseMapping is the translation between
+// the verbosity type and the verbose common name
 var VerboseReverseMapping = map[Verbose]string{
 	QUIET:    "quiet",
 	CRITICAL: "critical",

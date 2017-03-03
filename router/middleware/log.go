@@ -9,7 +9,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-// Log is the echo middleware used to request messages with the wanted format
+// Log is the router middleware used to log request messages with the wanted format
 func Log() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) (err error) {

@@ -2,17 +2,19 @@ package httperror
 
 import "errors"
 
-// HTTPErrors contain all the error list
+// HTTPErrors contain all the errors
 type HTTPErrors struct {
 	Code   int                   `json:"-"`
 	Errors map[string]*HTTPError `json:"errors"`
 }
 
 var (
-	errHEnil = errors.New("HTTPErrors is nil")
+	// ErrHEIsNil is an error returned
+	// when the claims object is nil
+	ErrHEIsNil = errors.New("HTTPErrors is nil")
 )
 
-// New creare errors and add the item error
+// New create a new error list and add the item error
 func New(code int, typ string, err *HTTPError) (errors *HTTPErrors) {
 	e := new(HTTPErrors)
 	e.Errors = make(map[string]*HTTPError)
@@ -23,20 +25,20 @@ func New(code int, typ string, err *HTTPError) (errors *HTTPErrors) {
 	return e
 }
 
-// Add add in errors the item error
+// Add add in error list the error
 func (e *HTTPErrors) Add(typ string, err *HTTPError) (errors *HTTPErrors) {
 	if e.Errors == nil {
-		panic(errHEnil)
+		panic(ErrHEIsNil)
 	}
 
 	e.Errors[typ] = err
 	return e
 }
 
-// Error concat all the errors in one error
+// Error concat all the errors in one message
 func (e *HTTPErrors) Error() (err string) {
 	if e.Errors == nil {
-		panic(errHEnil)
+		panic(ErrHEIsNil)
 	}
 
 	err = ""

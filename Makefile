@@ -4,6 +4,9 @@ BINARY_NAME			:= nebulo
 # Used for generation and copy in archive
 CONFIGURATION_FILE	:= config.sample.ini
 
+# Used for go coverage tools
+TEST_COVERAGE_MODE	?= count
+
 # Overload this variable on make call 'make <function> CI=1' to add debug information
 #	and remove terminal colors
 CI					?= 0
@@ -15,6 +18,7 @@ RELEASE_ARCH		?= 386 amd64
 # Temporary directories to use to generate binaries and documentation
 DIR_PROJECT			:= $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 DIR_BUILD			:= $(DIR_PROJECT)/build
+DIR_COVERAGE		:= $(DIR_PROJECT)/coverage
 DIR_RELEASE			:= $(DIR_PROJECT)/release
 DIR_RELEASE_TMP		:= $(DIR_PROJECT)/.tmp/
 
@@ -100,20 +104,42 @@ test_code:
 # Check unit tests
 test_unit:
 	$Q echo -e '$(COLOR_PRINT)Testing code with unit tests...$(COLOR_RESET)'
-	$Q go test -v -timeout 5
+	$Q go test -v -timeout 5s $(shell go list ./... | grep -v /vendor/)
+	$Q echo -e '$(COLOR_SUCCESS)Done$(COLOR_RESET)'
+
+# TODOs should not exist
+test_todo:
+	$Q echo -e '$(COLOR_PRINT)Testing presence of TODOs in code...$(COLOR_RESET)'
+	$Q find . -name vendor -prune -o -name "*.go" -exec grep -Hn "//TODO:" {} \;
+	@[ "$(shell find . -name vendor -prune -o -name "*.go" -exec grep -Hn "//TODO:" {} \; | wc -l)" = "0" ]
 	$Q echo -e '$(COLOR_SUCCESS)Done$(COLOR_RESET)'
 
 # Check all kind of tests
-test: test_dependencies test_code test_unit
+test: test_dependencies test_code test_unit test_todo
+
+# Compute coverage and create coverage files
+coverage:
+	$Q rm -rf $(DIR_COVERAGE)
+	$Q mkdir -p $(DIR_COVERAGE)
+	$Q echo "mode: $(TEST_COVERAGE_MODE)" > $(DIR_COVERAGE)/coverage.out
+	$Q for pkg in $(shell go list ./... | grep -v /vendor/); do \
+		go test -covermode="$(TEST_COVERAGE_MODE)" -coverprofile="$(DIR_COVERAGE)/coverage.tmp" "$$pkg" 2>&1 > /dev/null; \
+		grep -h -v "^mode:" $(DIR_COVERAGE)/coverage.tmp >> $(DIR_COVERAGE)/coverage.out 2> /dev/null; \
+	done
+	$Q rm -f $(DIR_COVERAGE)/coverage.tmp
+	$Q go tool cover -func=$(DIR_COVERAGE)/coverage.out
+
+coverage_show: coverage
+	$Q go tool cover -html=$(DIR_COVERAGE)/coverage.out
 
 # Compile and save all necessaries file for each couple os/arch
-release_build: test config
+release_build: test coverage config
 	$Q echo -e '$(COLOR_PRINT)List of files beeing compiled:$(COLOR_RESET)'
 	$Q go list -f '{{.GoFiles}}' ./...
 	$Q mkdir -p $(DIR_BUILD)/bin
 	$Q echo -e '$(COLOR_PRINT)Building...$(COLOR_RESET)'
-	$Q for os in $(RELEASE_OS) ; do \
-		for arch in $(RELEASE_ARCH) ; do \
+	$Q for os in $(RELEASE_OS); do \
+		for arch in $(RELEASE_ARCH); do \
 			echo "Building $(BINARY_NAME) for $$os/$$arch..."; \
 			GOOS=$$os GOARCH=$$arch go build -o $(DIR_BUILD)/bin/$(BINARY_NAME)-$$os$$arch $(BUILD_FLAGS); \
 		done; \
@@ -128,11 +154,11 @@ release: config clean doc release_build
 	$Q cp $(DIR_BUILD)/bin/* $(DIR_RELEASE_TMP)/$(BINARY_NAME)
 	$Q cp $(CONFIGURATION_FILE) $(DIR_RELEASE_TMP)/$(BINARY_NAME)/config.ini
 	$Q tar --create --gzip --file=$(DIR_RELEASE)/$(BINARY_NAME)-doc-$(TAG).tar.gz -C $(DIR_BUILD)/ doc/
-	$Q for os in $(RELEASE_OS) ; do \
+	$Q for os in $(RELEASE_OS); do \
 		echo "Creating $(BINARY_NAME)-$$os archives..."; \
 		cd $(DIR_RELEASE_TMP) && tar --verbose --create --gzip --file=$(DIR_RELEASE)/$(BINARY_NAME)-bin-$(TAG)-$$os.tar.gz \
 			$(BINARY_NAME)/config.ini $(BINARY_NAME)/$(BINARY_NAME)-$$os*; \
 	done
 
 
-.PHONY: all $(BINARY_NAME) config run build clean doc_api doc godoc test_dependencies test_code test_unit test release_build release
+.PHONY: all $(BINARY_NAME) config run build clean doc_api doc godoc test_dependencies test_code test_unit test_todo test coverage coverage_show release_build release

@@ -1,9 +1,9 @@
-# [nebulo](https://github.com/krostar/nebulo) [![build status](https://travis-ci.org/krostar/nebulo.svg?branch=dev)](https://travis-ci.org/krostar/nebulo)
+# [nebulo](https://github.com/krostar/nebulo) [![Travis build status](https://travis-ci.org/krostar/nebulo.svg?branch=dev)](https://travis-ci.org/krostar/nebulo) [![Coverage Status](https://coveralls.io/repos/github/krostar/nebulo/badge.svg?branch=dev)](https://coveralls.io/github/krostar/nebulo?branch=dev) [![GoDoc](https://godoc.org/github.com/krostar/nebulo?status.svg)](https://godoc.org/github.com/krostar/nebulo)
 ## Project
 
 ## Configuration
 The configuration for nebulo's binary can be made in different ways.
-First, the configuration manager try to load the configuration from the `/etc/nebulo/config.ini` file, then feom the `./config.ini` and then the command line.
+First, the configuration manager try to load the configuration from the `/etc/nebulo/config.ini` file, then from the `./config.ini` and then the command line.
 
 Every new loaded configuration override the previous one, only newly defined properties are overloaded.
 
@@ -42,7 +42,7 @@ Application Options:
 
 
 ## Documentation
-The API documentation and the Golang documentation of this project for the **dev** environment are available here: [doc.nebulo.io/dev](https://doc.nebulo.io/dev)
+The API documentation of this project for the **dev** environment is available on [doc.nebulo.io/dev](https://doc.nebulo.io/dev), the Golang documentation is available on the [godoc website](https://godoc.org/github.com/krostar/nebulo)
 
 ## Contribute to the project
 ### Before you started
@@ -57,15 +57,15 @@ $> echo $GOPATH
 
 If you dont have `golang` installed or if your `$GOPATH` environment variable isn't set, please visit [Golang: Getting Started](https://golang.org/doc/install) and [Golang: GOPATH](https://golang.org/doc/code.html#GOPATH)
 
-> It may be a good idea to add `$GOPATH/bin` and `$GOROOT/bin` in your `$PATH` environment !
+> It may be a good idea to add `$GOPATH/bin` and `$GOROOT/bin` in your `$PATH` environment!
 
 #### Download the project
 ```sh
-# Traditional way
+# Manually
 $> mkdir -p $GOPATH/src/github.com/krostar/
 $> git -c $GOPATH/src/github.com/krostar/ clone https://github.com/krostar/nebulo.git
 
-# Efficient way
+# or via go get
 $> go get github.com/krostar/nebulo
 ```
 
@@ -79,7 +79,7 @@ We are using a Makefile to everything we need (build, release, tests, documentat
 ```sh
 # Build the project (by default generated binary will be in <root>/build/bin/nebulo)
 $> make
-# Run the project
+# Run the project without arguments
 $> make run
 # Run the project with command line option
 $> make ARGS="--environment dev" run
@@ -98,17 +98,17 @@ $> make release TAG=1.2.3
 Please, make sure your favorite editor is configured for this project. The source code should be:
 - well formatted (`gofmt` (usage of tabulation, no trailing whitespaces, trailing line at the end of the file, ...))
 - linter free (`gometalinter --config=.gometalinter.json ./...`)
-- comment on each 7lines+ functions
-- inline comments beginning with a lowercase caracter
+- commented on each 7lines+ functions
+- with inline comments beginning with a lowercase caracter
 
-Make sure to use `make test` before submitting a merge request !
+Make sure to use `make test` before submitting a merge request!
 
 ### Other things
 - don't commit dependencies (see [.vendor/vendor.json](https://github.com/kardianos/govendor) configuration file)
 - make unit tests for each features!
 
-> In the [atom editor](https://atom.io/) the package `go-plus` is really
+> In the [atom editor](https://atom.io/) the package `go-plus` is really useful
 > You probably want to use our [`.editorconfig`](http://editorconfig.org) file.
 
 ## Report bugs
-Create a [issue](https://github.com/krostar/nebulo/issues) or contact [bug[at]nebulo[dot]io](mailto:bug@nebulo.io)
+Create an [issue](https://github.com/krostar/nebulo/issues) or contact [bug[at]nebulo[dot]io](mailto:bug@nebulo.io)

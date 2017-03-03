@@ -35,8 +35,8 @@ func ErrorHandler(err error, c echo.Context) {
 				// if we are in local developpement, it's acceptable to return the unhandled error
 				errors = New(http.StatusInternalServerError, "_", HTTPInternalServerError(err.Error()))
 			} else {
-				// never return why we have this error, but log it
-				log.Errorln("Unhandled error:", err)
+				// in production, never return why we have this error, but log it
+				log.Errorln("Unhandled internal error:", err)
 				errors = New(http.StatusInternalServerError, "_", HTTPInternalServerError(nil))
 			}
 		}

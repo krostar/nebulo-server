@@ -5,6 +5,10 @@ sudo: required
 go:
   - 1.7.x
 
+env:
+  global:
+    secure: a9/XUeUzNTB8GzVi5Y2We8H+5kpYofetbuYFsAHPq78RuwSM+MlQoVPOF9ox0y8SFcBrVNOuK9vFaTKAYJ9Cl8jaTywiPaMFmMw8+FdTZeAfKuOiPT2h2m1ozJ4o+Gqfk7r93kAgMpvHBaDfDFxR3ls2hoCWs8T9WVsgE1CMe992GO4Ba8wrsghZresdAdIHXJtM+TA5Nx++9x4DcgPH4EVXYXVRb33dH4TfGx4YiBj2nS4ayGmKCD/fVfasDa8wCMDWp9KAWQmHOHUYLJYoAuNH+VfoR59iCUrpRqGA8EsjZKldDPlg2a+pqP21rbHekvAbIQ5kfHVgHrSQWRfDBYhZ6Z3cvhu0sfv4MvA+leLpEGBSs6v2y7qker0U2uR3nBzbUskJYFuGWh3Wt0GndAeYppdUv2Yy/kw98Dfi0Vs3b/RLM0KhId+oNWtmzhUQI+/c0mOte3bYa9EH1WHZfNE6H5PEZBrKN27BbHzelLBgb8D297fmN1HXvisw10ZZGoA3DSkF13kb1xx6vyDy56/QEHU+iyodw6g+gwYMrT8g5uAVJ3PUxRLJPgw+rIzx+hjz0XH0kzirejGq86/S7kjPoVSsdC1GFZwCfsKB/+f7B2+TCyirBZAsYqblGFO2F106YZwLwbG8vo0JtQaeHEMcjbQ8F4rxA9OgPhOFMKs=
+
 before_install:
   - echo "before_install step"
   - lsb_release -a
@@ -28,14 +32,13 @@ install:
   - go get -u github.com/alecthomas/gometalinter
   - govendor sync -v
   - gometalinter --install --update --force
-
-before_script:
-  - echo "before_script step"
-  - make test
+  - go get github.com/mattn/goveralls
 
 script:
   - echo "script step"
   - ([ -n "${TRAVIS_TAG}" ] && make release TAG=${TRAVIS_TAG}) || make test
+  - make coverage
+  - goveralls -coverprofile=coverage/coverage.out -service=travis-ci
 
 deploy:
   provider: releases
