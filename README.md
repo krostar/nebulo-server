@@ -1,4 +1,4 @@
-# [nebulo](https://github.com/krostar/nebulo) [![Travis build status](https://travis-ci.org/krostar/nebulo.svg?branch=dev)](https://travis-ci.org/krostar/nebulo) [![Coverage Status](https://coveralls.io/repos/github/krostar/nebulo/badge.svg?branch=dev)](https://coveralls.io/github/krostar/nebulo?branch=dev) [![GoDoc](https://godoc.org/github.com/krostar/nebulo?status.svg)](https://godoc.org/github.com/krostar/nebulo)
+# [nebulo](https://github.com/krostar/nebulo)  [![GoDoc](https://godoc.org/github.com/krostar/nebulo?status.svg)](https://godoc.org/github.com/krostar/nebulo) [![license](https://img.shields.io/github/license/krostar/nebulo.svg)](https://tldrlegal.com/license/mit-license) [![Travis build status](https://travis-ci.org/krostar/nebulo.svg?branch=dev)](https://travis-ci.org/krostar/nebulo) [![Coverage Status](https://coveralls.io/repos/github/krostar/nebulo/badge.svg?branch=dev)](https://coveralls.io/github/krostar/nebulo?branch=dev) [![GitHub release](https://img.shields.io/github/release/krostar/nebulo.svg)](https://github.com/krostar/nebulo/releases)
 ## Project
 
 ## Configuration
@@ -47,7 +47,7 @@ The API documentation of this project for the **dev** environment is available o
 ## Contribute to the project
 ### Before you started
 #### Check your golang installation
-Make sure `golang` is installed and is at least in version **1.7** and your `$GOPATH` environment variable set in your working directory
+Make sure `golang` is installed and is at least in version **1.8** and your `$GOPATH` environment variable set in your working directory
 ```sh
 $> go version
 go version go1.7.4 linux/amd64

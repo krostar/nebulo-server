@@ -16,18 +16,19 @@ import (
 
 // Options list all the available options of the program, with details useful for help command and validators to help validations of fields
 type Options struct {
-	Help             bool   `short:"h" long:"help" description:"show this help message" no-ini:"true" validate:"-"`
-	ConfigGeneration string `long:"config-gen" description:"generate a configuration file for the actual configuration to the specified file and quit" no-ini:"true" validate:"-"`
-	ConfigFile       string `short:"c" long:"config-file" description:"specify a configuration file (be cautious on infinite-recursive-configuration)" validate:"file=omitempty+readable"`
-	Environment      string `short:"e" long:"environment" choice:"dev" choice:"beta" choice:"prod" description:"environment to use for external services connection purpose - this parameter is required" validate:"regexp=^(dev|beta|prod)$"`
-	Address          string `short:"a" long:"address" description:"override environment address to use to listen to" default-mask:"depend on -e (environment)"`
-	Port             int    `short:"p" long:"port" description:"override environment port to use to listen to" default-mask:"depend on -e (environment)"`
-	TLSCertFile      string `long:"tls-crt-file" description:"tls certificate file used to encrypt communication" validate:"file=omitempty+readable"`
-	TLSKeyFile       string `long:"tls-key-file" description:"tls certificate key used to encrypt communication" validate:"file=omitempty+readable"`
-	LogFile          string `short:"l" long:"logging-file" description:"the file where write the log" default-mask:"no file, standart output" validate:"-"`
-	Verbose          string `short:"v" long:"verbose" choice:"quiet" choice:"critical" choice:"error" choice:"warning" choice:"info" choice:"request" choice:"debug" description:"level of information to write on standart output or in a file" default-mask:"debug" validate:"regexp=^(quiet|critical|error|warning|info|request|debug)?$"`
-	JWTSecret        string `long:"jwt-secret" description:"JWT secret string to encode communication with client with - minimum 5 lowercase, 5 uppercase, 5 digits and 5 specials - 42 caracters minimum - this parameter is required" validate:"string=custom:5|5|5|5+length:least|42"`
-	AESSecret        string `long:"aes-secret" description:"AES secret string to encode communication with client with - minimum 3 lowercase, 3 uppercase, 3 digits and 3 specials - 32 caracters - this parameter is required" validate:"string=custom:3|3|3|3+length:equal|32"`
+	Help                  bool   `short:"h" long:"help" description:"show this help message" no-ini:"true" validate:"-"`
+	ConfigDontLoadDefault bool   `long:"config-dont-load-default" description:"load default configuration files" default-mask:"false" no-ini:"true" validate:"-"`
+	ConfigGeneration      string `long:"config-gen" description:"generate a configuration file for the actual configuration to the specified file and quit" no-ini:"true" validate:"-"`
+	ConfigFile            string `short:"c" long:"config-file" description:"specify a configuration file (be cautious on infinite-recursive-configuration)" validate:"file=omitempty+readable"`
+	Environment           string `short:"e" long:"environment" choice:"dev" choice:"beta" choice:"prod" description:"environment to use for external services connection purpose - this parameter is required" validate:"regexp=^(dev|beta|prod)$"`
+	Address               string `short:"a" long:"address" description:"override environment address to use to listen to" default-mask:"depend on -e (environment)"`
+	Port                  int    `short:"p" long:"port" description:"override environment port to use to listen to" default-mask:"depend on -e (environment)"`
+	TLSCertFile           string `long:"tls-crt-file" description:"tls certificate file used to encrypt communication" validate:"file=omitempty+readable"`
+	TLSKeyFile            string `long:"tls-key-file" description:"tls certificate key used to encrypt communication" validate:"file=omitempty+readable"`
+	LogFile               string `short:"l" long:"logging-file" description:"the file where write the log" default-mask:"no file, standart output" validate:"-"`
+	Verbose               string `short:"v" long:"verbose" choice:"quiet" choice:"critical" choice:"error" choice:"warning" choice:"info" choice:"request" choice:"debug" description:"level of information to write on standart output or in a file" default-mask:"debug" validate:"regexp=^(quiet|critical|error|warning|info|request|debug)?$"`
+	JWTSecret             string `long:"jwt-secret" description:"JWT secret string to encode communication with client with - this parameter is required" validate:"string=custom:5|5|5|5+length:least|42"`
+	AESSecret             string `long:"aes-secret" description:"AES secret string to encode communication with client with - this parameter is required" validate:"string=custom:3|3|3|3+length:equal|32"`
 }
 
 var (
@@ -55,13 +56,7 @@ func Load() (err error) {
 	Config = new(Options)
 	parser = flags.NewParser(Config, flags.None)
 
-	for _, filepath := range defaultConfigurationFilePaths {
-		if err = fromFile(filepath); err != nil {
-			return err
-		}
-	}
-
-	// try to override configuration via the command line
+	// looking for help, config-gen or config-not-load-default and by command line syntax
 	remainingArgs, err := FromCommandLine(os.Args, Config)
 	if err != nil {
 		return fmt.Errorf("Error while parsing configuration from command line: %s", err)
@@ -69,20 +64,28 @@ func Load() (err error) {
 	if len(remainingArgs) > 1 {
 		return fmt.Errorf("Unknow argument: %s", strings.Join(remainingArgs[1:], " "))
 	}
-
-	if err = successfullyLoaded("command line"); err != nil {
+	if err = successfullyLoaded(""); err != nil {
 		if err == errConfigHelp || err == errConfigGeneration {
 			return nil
 		}
 		return err
 	}
 
-	// check the configuration
-	if err = validator.Validate(Config); err != nil {
+	// load default files
+	for _, filepath := range defaultConfigurationFilePaths {
+		if err = fromFile(filepath); err != nil {
+			return err
+		}
+	}
+
+	// try to override configuration via the command line
+	if _, err = FromCommandLine(os.Args, Config); err != nil {
+		return err
+	}
+	if err = successfullyLoaded("command line"); err != nil {
 		return err
 	}
 
-	// apply it
 	if err = applyConfiguration(); err != nil {
 		return err
 	}
@@ -90,7 +93,9 @@ func Load() (err error) {
 }
 
 func successfullyLoaded(from string) (err error) {
-	log.Infoln("Configuration successfully loaded from "+from, Config)
+	if from != "" {
+		log.Infof("Configuration successfully loaded from %s", from)
+	}
 
 	// if the user need help, the program has to quit
 	if Config.Help {
@@ -117,6 +122,10 @@ func successfullyLoaded(from string) (err error) {
 		}
 	}
 
+	if Config.ConfigDontLoadDefault {
+		defaultConfigurationFilePaths = []string{}
+	}
+
 	// if we have the config parameter, we need to overload this config
 	if confFile := Config.ConfigFile; confFile != "" {
 		Config.ConfigFile = ""
@@ -132,6 +141,11 @@ func successfullyLoaded(from string) (err error) {
 }
 
 func applyConfiguration() (err error) {
+	// check the configuration
+	if err = validator.Validate(Config); err != nil {
+		return err
+	}
+
 	// apply environment config
 	if Config.Environment != "" {
 		environment := env.EnvironmentConfig[env.Environment(Config.Environment)]

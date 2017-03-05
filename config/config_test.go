@@ -24,7 +24,6 @@ var (
 
 func init() {
 	log.SetOutput(ioutil.Discard)
-	defaultConfigurationFilePaths = []string{}
 
 	/*
 		default defer to use to reset everything:
@@ -36,7 +35,6 @@ func init() {
 			os.Stdout = oldStdout
 			Config = nil
 			tester = false
-			defaultConfigurationFilePaths = []string{}
 		}()
 	*/
 
@@ -54,7 +52,8 @@ func TestGoodOptions(t *testing.T) {
 
 	// test with good arguments
 	os.Args = []string{oldArgs[0],
-		"-e", goodEnvOption,
+		"--config-dont-load-default",
+		"--environment=" + goodEnvOption,
 		"--jwt-secret=" + goodJWTSecretOption,
 		"--aes-secret=" + goodAESSecretOption,
 		"--address=127.0.0.1",
@@ -80,7 +79,8 @@ func TestBadBasicOptions(t *testing.T) {
 
 	// test 1 with bad arguments: bad syntax
 	os.Args = []string{oldArgs[0],
-		"-e", "bad",
+		"--config-dont-load-default",
+		"--environment=bad",
 		"--jwt-secret=bad",
 		"--aes-secret=bad",
 		"--verbose=bad",
@@ -92,7 +92,8 @@ func TestBadBasicOptions(t *testing.T) {
 
 	// test 2 with bad arguments: bad logging file
 	os.Args = []string{oldArgs[0],
-		"-e", goodEnvOption,
+		"--config-dont-load-default",
+		"--environment=" + goodEnvOption,
 		"--jwt-secret=" + goodJWTSecretOption,
 		"--aes-secret=" + goodAESSecretOption,
 		"--logging-file=/",
@@ -124,7 +125,8 @@ func TestUselessOptions(t *testing.T) {
 	}()
 	// test with useless arguments add the end
 	os.Args = []string{oldArgs[0],
-		"-e", goodEnvOption,
+		"--config-dont-load-default",
+		"--environment=" + goodEnvOption,
 		"--jwt-secret=" + goodJWTSecretOption,
 		"--aes-secret=" + goodAESSecretOption,
 		"--useless",
@@ -136,7 +138,8 @@ func TestUselessOptions(t *testing.T) {
 
 	// test with useless arguments add the end
 	os.Args = []string{oldArgs[0],
-		"-e", goodEnvOption,
+		"--config-dont-load-default",
+		"--environment=" + goodEnvOption,
 		"--jwt-secret=" + goodJWTSecretOption,
 		"--aes-secret=" + goodAESSecretOption,
 		"-u",
@@ -148,7 +151,8 @@ func TestUselessOptions(t *testing.T) {
 
 	// test with useless arguments add the end
 	os.Args = []string{oldArgs[0],
-		"-e", goodEnvOption,
+		"--config-dont-load-default",
+		"--environment=" + goodEnvOption,
 		"--jwt-secret=" + goodJWTSecretOption,
 		"--aes-secret=" + goodAESSecretOption,
 		"useless",
@@ -188,7 +192,7 @@ func TestBadDefaultFileLoadingOptions(t *testing.T) {
 	}()
 
 	os.Args = []string{oldArgs[0],
-		"-e", goodEnvOption,
+		"--environment=" + goodEnvOption,
 		"--jwt-secret=" + goodJWTSecretOption,
 		"--aes-secret=" + goodAESSecretOption,
 	}
@@ -222,7 +226,8 @@ func TestBadConfigFileOptions(t *testing.T) {
 	// test with config file with failure
 	tester = true
 	os.Args = []string{oldArgs[0],
-		"-e", goodEnvOption,
+		"--config-dont-load-default",
+		"--environment=" + goodEnvOption,
 		"--jwt-secret=" + goodJWTSecretOption,
 		"--aes-secret=" + goodAESSecretOption,
 		"--config-file=/inexisting",
@@ -232,7 +237,7 @@ func TestBadConfigFileOptions(t *testing.T) {
 	}
 }
 
-func TestOverrideOptions(t *testing.T) {
+func TestConfigFileOptions(t *testing.T) {
 	oldArgs := os.Args
 	defer func() {
 		os.Args = oldArgs
@@ -245,16 +250,14 @@ func TestOverrideOptions(t *testing.T) {
 
 	// test with config file arguments to overload previous config
 	os.Args = []string{oldArgs[0],
-		"-e", goodEnvOption,
+		"--config-dont-load-default",
+		"--environment=" + goodEnvOption,
 		"--jwt-secret=" + goodJWTSecretOption,
 		"--aes-secret=" + goodAESSecretOption,
 		"--config-file=" + filename + "/../config.sample.ini",
 	}
 	if err := Load(); err != nil {
 		t.Fatal("load should not have returned an error:", err)
-	}
-	if Config.Environment != "dev" {
-		t.Fatal("the configuration file should have changed the env configuration")
 	}
 }
 
@@ -268,7 +271,7 @@ func TestHelp(t *testing.T) {
 		tester = false
 	}()
 
-	args := []string{oldArgs[0], "-h"}
+	args := []string{oldArgs[0], "--config-dont-load-default", "-h"}
 	// check return code
 	if err := checkReturnCode(args, "TestHelp", returncode.HELP); err != nil {
 		t.Fatal(err)
@@ -303,7 +306,7 @@ func TestConfigGen(t *testing.T) {
 		}
 	}()
 
-	args := []string{os.Args[0], "--config-gen=" + tmpdir + "/toto.ini"}
+	args := []string{os.Args[0], "--config-dont-load-default", "--config-gen=" + tmpdir + "/toto.ini"}
 	// check return code
 	if err = checkReturnCode(args, "TestConfigGen", returncode.CONFIGGEN); err != nil {
 		t.Fatal(err)

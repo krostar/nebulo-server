@@ -1,5 +1,6 @@
 {
     "Concurrency": 4,
+    "Cyclo": 11,
     "Deadline": "5m",
     "DisableAll": true,
     "Enable": [

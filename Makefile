@@ -55,8 +55,10 @@ $(BINARY_NAME):
 	$Q go build -o $(DIR_BUILD)/bin/$(BINARY_NAME) $(BUILD_FLAGS)
 	$Q echo -e '$(COLOR_SUCCESS)Compilation done without errors$(COLOR_RESET)'
 
+build: $(BINARY_NAME)
+
 config: $(BINARY_NAME)
-	$Q [ "$(shell $(DIR_BUILD)/bin/$(BINARY_NAME) --config-gen=$(CONFIGURATION_FILE) --verbose quiet 2>&1 > /dev/null || echo $$? && false)" = "102" ]
+	$Q [ "$(shell $(DIR_BUILD)/bin/$(BINARY_NAME) --config-dont-load-default --config-gen=$(CONFIGURATION_FILE) 2>&1 > /dev/null || echo $$? && false)" = "102" ]
 
 # Compile for current os/arch and run binary
 run: $(BINARY_NAME)
@@ -161,4 +163,4 @@ release: config clean doc release_build
 	done
 
 
-.PHONY: all $(BINARY_NAME) config run build clean doc_api doc godoc test_dependencies test_code test_unit test_todo test coverage coverage_show release_build release
+.PHONY: all $(BINARY_NAME) build config run clean doc_api doc godoc test_dependencies test_code test_unit test_todo test coverage coverage_show release_build release

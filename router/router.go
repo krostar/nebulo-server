@@ -1,14 +1,12 @@
 package router
 
 import (
+	"crypto/tls"
+	"net"
 	"strconv"
-	"time"
-
-	graceful "gopkg.in/tylerb/graceful.v1"
 
 	"github.com/krostar/nebulo/config"
 	"github.com/krostar/nebulo/env"
-	"github.com/krostar/nebulo/log"
 	njwt "github.com/krostar/nebulo/router/auth/jwt"
 	"github.com/krostar/nebulo/router/handler"
 	"github.com/krostar/nebulo/router/httperror"
@@ -19,24 +17,63 @@ import (
 
 var (
 	router *echo.Echo
+	puMdw  map[string]echo.MiddlewareFunc
 )
 
 // init define some useful-always-used parameters to echo.Echo router
 func init() {
 	router = echo.New()
+	puMdw = make(map[string]echo.MiddlewareFunc)
 }
 
-func setupRouter() {
+func setupRouter(environment *env.Config) {
 	if env.Environment(config.Config.Environment) == env.DEV {
 		router.Debug = true
 	} else {
 		router.Debug = false
 	}
-
 	router.HTTPErrorHandler = httperror.ErrorHandler
+
+	router.Server.Addr = environment.Address + ":" + strconv.Itoa(environment.Port)
+
+	setupMiddlewares()
+	setupRoutes()
+
+}
+
+func createTLSConfig(certFile string, keyFile string) (config *tls.Config, err error) {
+	cer, err := tls.LoadX509KeyPair(certFile, keyFile)
+	if err != nil {
+		return nil, err
+	}
+
+	config = &tls.Config{
+		Certificates: []tls.Certificate{cer},
+		//     RootCAs *x509.CertPool
+		//     ServerName string
+		// ClientAuth: tls.RequireAndVerifyClientCert,
+		//     ClientCAs *x509.CertPool
+		//     InsecureSkipVerify bool
+		CipherSuites: []uint16{
+			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+		},
+		PreferServerCipherSuites: true,
+		SessionTicketsDisabled:   false,
+		MinVersion:               tls.VersionTLS12,
+		CurvePreferences:         []tls.CurveID{tls.CurveP521, tls.CurveP384},
+	}
+
+	// w.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
+
+	return config, nil
+}
+
+func setupMiddlewares() {
 	router.Use(nmiddleware.Log())
 	router.Use(nmiddleware.Recover()) // in case of panic, recover and don't quit
 	router.Use(middleware.RemoveTrailingSlash())
+	router.Use(nmiddleware.Headers())
 
 	JWTConfig := middleware.JWTConfig{
 		Claims:        &njwt.Claims{},
@@ -45,19 +82,21 @@ func setupRouter() {
 		SigningMethod: "HS512",
 		ContextKey:    "jwt",
 	}
-	mdwAuth := middleware.JWTWithConfig(JWTConfig)
+	puMdw["auth"] = middleware.JWTWithConfig(JWTConfig)
+}
 
+func setupRoutes() {
 	router.GET("/version", handler.Version)
 
 	// domain/auth/...
 	auth := router.Group("/auth")
 	auth.POST("/login", handler.AuthLogin)
-	auth.POST("/login/verify", handler.AuthLoginVerify, mdwAuth)
-	auth.GET("/logout", handler.AuthLogout, mdwAuth)
+	auth.POST("/login/verify", handler.AuthLoginVerify, puMdw["auth"])
+	auth.GET("/logout", handler.AuthLogout, puMdw["auth"])
 
 	// domain/user/...
 	user := router.Group("/user")
-	user.GET("/:user", handler.UserInfos, mdwAuth) //user profile infos
+	user.GET("/:user", handler.UserInfos, puMdw["auth"]) //user profile infos
 	// user.POST("/", handler.UserCreate)                 //add user profile
 	// user.PUT("/:user", handler.UserEdit, mdwAuth)      //edit user profile
 	// user.DELETE("/:user", handler.UserDelete, mdwAuth) //edit user profile
@@ -86,18 +125,32 @@ func setupRouter() {
 	// message.DELETE("/:message", handler.ChanMessageDelete) //delete a specific message
 }
 
+func run(environment *env.Config, tlsConfig *tls.Config) error {
+	setupRouter(environment)
+	router.Server.Addr = environment.Address + ":" + strconv.Itoa(environment.Port)
+
+	listener, err := net.Listen("tcp4", router.Server.Addr)
+	if err != nil {
+		return err
+	}
+
+	if tlsConfig != nil {
+		router.Server.TLSConfig = tlsConfig
+		listener = tls.NewListener(listener, router.Server.TLSConfig)
+	}
+	return router.Server.Serve(listener)
+}
+
 // Run start the routeur
 func Run(environment *env.Config) error {
-	setupRouter()
-	router.Server.Addr = environment.Address + ":" + strconv.Itoa(environment.Port)
-	log.Infoln("Starting router on", router.Server.Addr)
-	return graceful.ListenAndServe(router.Server, 10*time.Second)
+	return run(environment, nil)
 }
 
 // RunTLS start the routeur and use encryption to communicate
 func RunTLS(environment *env.Config, certFile string, keyFile string) error {
-	setupRouter()
-	router.Server.Addr = environment.Address + ":" + strconv.Itoa(environment.Port)
-	log.Infoln("Starting router on", router.Server.Addr)
-	return graceful.ListenAndServeTLS(router.Server, certFile, keyFile, 10*time.Second)
+	tlsConfig, err := createTLSConfig(certFile, keyFile)
+	if err != nil {
+		return err
+	}
+	return run(environment, tlsConfig)
 }
