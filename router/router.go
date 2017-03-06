@@ -2,12 +2,14 @@ package router
 
 import (
 	"crypto/tls"
+	"crypto/x509"
+	"io/ioutil"
+	"log"
 	"net"
 	"strconv"
 
 	"github.com/krostar/nebulo/config"
 	"github.com/krostar/nebulo/env"
-	njwt "github.com/krostar/nebulo/router/auth/jwt"
 	"github.com/krostar/nebulo/router/handler"
 	"github.com/krostar/nebulo/router/httperror"
 	nmiddleware "github.com/krostar/nebulo/router/middleware"
@@ -32,28 +34,33 @@ func setupRouter(environment *env.Config) {
 	} else {
 		router.Debug = false
 	}
-	router.HTTPErrorHandler = httperror.ErrorHandler
 
+	router.HTTPErrorHandler = httperror.ErrorHandler
 	router.Server.Addr = environment.Address + ":" + strconv.Itoa(environment.Port)
 
 	setupMiddlewares()
 	setupRoutes()
-
 }
 
-func createTLSConfig(certFile string, keyFile string) (config *tls.Config, err error) {
+func createTLSConfig(certFile string, keyFile string, clientCAFilepath string) (config *tls.Config, err error) {
 	cer, err := tls.LoadX509KeyPair(certFile, keyFile)
 	if err != nil {
 		return nil, err
 	}
 
+	// Load our CA certificate
+	clientCAFile, err := ioutil.ReadFile(clientCAFilepath)
+	if err != nil {
+		return nil, err
+	}
+
+	clientCAPool := x509.NewCertPool()
+	clientCAPool.AppendCertsFromPEM(clientCAFile)
+
 	config = &tls.Config{
 		Certificates: []tls.Certificate{cer},
-		//     RootCAs *x509.CertPool
-		//     ServerName string
-		// ClientAuth: tls.RequireAndVerifyClientCert,
-		//     ClientCAs *x509.CertPool
-		//     InsecureSkipVerify bool
+		ClientAuth:   tls.VerifyClientCertIfGiven,
+		ClientCAs:    clientCAPool,
 		CipherSuites: []uint16{
 			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
 			tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
@@ -64,8 +71,6 @@ func createTLSConfig(certFile string, keyFile string) (config *tls.Config, err e
 		CurvePreferences:         []tls.CurveID{tls.CurveP521, tls.CurveP384},
 	}
 
-	// w.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
-
 	return config, nil
 }
 
@@ -73,31 +78,18 @@ func setupMiddlewares() {
 	router.Use(nmiddleware.Log())
 	router.Use(nmiddleware.Recover()) // in case of panic, recover and don't quit
 	router.Use(middleware.RemoveTrailingSlash())
-	router.Use(nmiddleware.Headers())
+	router.Use(nmiddleware.Misc())
 
-	JWTConfig := middleware.JWTConfig{
-		Claims:        &njwt.Claims{},
-		SigningKey:    []byte(config.Config.JWTSecret),
-		AuthScheme:    "Bearer",
-		SigningMethod: "HS512",
-		ContextKey:    "jwt",
-	}
-	puMdw["auth"] = middleware.JWTWithConfig(JWTConfig)
+	puMdw["auth"] = nmiddleware.Auth()
 }
 
 func setupRoutes() {
 	router.GET("/version", handler.Version)
 
-	// domain/auth/...
-	auth := router.Group("/auth")
-	auth.POST("/login", handler.AuthLogin)
-	auth.POST("/login/verify", handler.AuthLoginVerify, puMdw["auth"])
-	auth.GET("/logout", handler.AuthLogout, puMdw["auth"])
-
 	// domain/user/...
 	user := router.Group("/user")
-	user.GET("/:user", handler.UserInfos, puMdw["auth"]) //user profile infos
-	// user.POST("/", handler.UserCreate)                 //add user profile
+	user.GET("/", handler.UserInfos, puMdw["auth"]) //user profile infos
+	user.POST("/", handler.UserCreate)              //create user profile
 	// user.PUT("/:user", handler.UserEdit, mdwAuth)      //edit user profile
 	// user.DELETE("/:user", handler.UserDelete, mdwAuth) //edit user profile
 	//
@@ -122,11 +114,12 @@ func setupRoutes() {
 	// message := channel.Group("/:chan/message")
 	// message.POST("/", handler.ChanMessageCreate)           //add message to a specific channel
 	// message.PUT("/:message", handler.ChanMessageEdit)      //edit a specific message
-	// message.DELETE("/:message", handler.ChanMessageDelete) //delete a specific message
+	// message.DELETE("/:message", handler.ChanMessa && config.Config.TLSKeyFile != ""geDelete) //delete a specific message
 }
 
 func run(environment *env.Config, tlsConfig *tls.Config) error {
 	setupRouter(environment)
+	router.Server.ErrorLog = log.New(ioutil.Discard, "", 0)
 	router.Server.Addr = environment.Address + ":" + strconv.Itoa(environment.Port)
 
 	listener, err := net.Listen("tcp4", router.Server.Addr)
@@ -141,14 +134,9 @@ func run(environment *env.Config, tlsConfig *tls.Config) error {
 	return router.Server.Serve(listener)
 }
 
-// Run start the routeur
-func Run(environment *env.Config) error {
-	return run(environment, nil)
-}
-
 // RunTLS start the routeur and use encryption to communicate
-func RunTLS(environment *env.Config, certFile string, keyFile string) error {
-	tlsConfig, err := createTLSConfig(certFile, keyFile)
+func RunTLS(environment *env.Config, certFile string, keyFile string, clientsCAFile string) error {
+	tlsConfig, err := createTLSConfig(certFile, keyFile, clientsCAFile)
 	if err != nil {
 		return err
 	}

@@ -16,19 +16,20 @@ import (
 
 // Options list all the available options of the program, with details useful for help command and validators to help validations of fields
 type Options struct {
-	Help                  bool   `short:"h" long:"help" description:"show this help message" no-ini:"true" validate:"-"`
-	ConfigDontLoadDefault bool   `long:"config-dont-load-default" description:"load default configuration files" default-mask:"false" no-ini:"true" validate:"-"`
-	ConfigGeneration      string `long:"config-gen" description:"generate a configuration file for the actual configuration to the specified file and quit" no-ini:"true" validate:"-"`
-	ConfigFile            string `short:"c" long:"config-file" description:"specify a configuration file (be cautious on infinite-recursive-configuration)" validate:"file=omitempty+readable"`
-	Environment           string `short:"e" long:"environment" choice:"dev" choice:"beta" choice:"prod" description:"environment to use for external services connection purpose - this parameter is required" validate:"regexp=^(dev|beta|prod)$"`
-	Address               string `short:"a" long:"address" description:"override environment address to use to listen to" default-mask:"depend on -e (environment)"`
-	Port                  int    `short:"p" long:"port" description:"override environment port to use to listen to" default-mask:"depend on -e (environment)"`
-	TLSCertFile           string `long:"tls-crt-file" description:"tls certificate file used to encrypt communication" validate:"file=omitempty+readable"`
-	TLSKeyFile            string `long:"tls-key-file" description:"tls certificate key used to encrypt communication" validate:"file=omitempty+readable"`
-	LogFile               string `short:"l" long:"logging-file" description:"the file where write the log" default-mask:"no file, standart output" validate:"-"`
-	Verbose               string `short:"v" long:"verbose" choice:"quiet" choice:"critical" choice:"error" choice:"warning" choice:"info" choice:"request" choice:"debug" description:"level of information to write on standart output or in a file" default-mask:"debug" validate:"regexp=^(quiet|critical|error|warning|info|request|debug)?$"`
-	JWTSecret             string `long:"jwt-secret" description:"JWT secret string to encode communication with client with - this parameter is required" validate:"string=custom:5|5|5|5+length:least|42"`
-	AESSecret             string `long:"aes-secret" description:"AES secret string to encode communication with client with - this parameter is required" validate:"string=custom:3|3|3|3+length:equal|32"`
+	Help                    bool   `short:"h" long:"help" description:"show this help message" no-ini:"true" validate:"-"`
+	ConfigDontLoadDefault   bool   `long:"config-dont-load-default" description:"choose to load or not the default configuration files" no-ini:"true" validate:"-"`
+	ConfigGeneration        string `long:"config-gen" description:"generate a configuration file for the actual configuration to the specified file and quit" no-ini:"true" validate:"-"`
+	ConfigFile              string `short:"c" long:"config-file" description:"specify a configuration file (be cautious on infinite-recursive-configuration)" validate:"file=omitempty+readable"`
+	Environment             string `short:"e" long:"environment" choice:"dev" choice:"beta" choice:"prod" description:"environment to use for external services connection purpose - this parameter is required" validate:"regexp=^(dev|beta|prod)$"`
+	Address                 string `short:"a" long:"address" description:"override environment address to use to listen to" default-mask:"depend on -e (environment)"`
+	Port                    int    `short:"p" long:"port" description:"override environment port to use to listen to" default-mask:"depend on -e (environment)"`
+	TLSCertFile             string `long:"tls-crt-file" description:"tls certificate file used to encrypt communication - this parameter is required for TLS communication" validate:"file=readable"`
+	TLSKeyFile              string `long:"tls-key-file" description:"tls certificate key used to encrypt communication - this parameter is required for TLS communication" validate:"file=readable"`
+	TLSClientsCACertFile    string `long:"tls-clients-ca-cert-file" description:"tls certification authority used to validate clients certificate for the tls mutual authentication - this parameter is required for TLS communication" validate:"file=readable"`
+	TLSClientsCAKeyFile     string `long:"tls-clients-ca-key-file" description:"tls certification authority key used to validate clients certificate for the tls mutual authentication - this parameter is required for TLS communication" validate:"file=readable"`
+	TLSClientsCAKeyPassword string `long:"tls-clients-ca-key-pwd" description:"tls certification authority key password used to validate clients certificate for the tls mutual authentication - this parameter is required for TLS communication"`
+	LogFile                 string `short:"l" long:"logging-file" description:"the file where write the log" default-mask:"no file, standart output" validate:"-"`
+	Verbose                 string `short:"v" long:"verbose" choice:"quiet" choice:"critical" choice:"error" choice:"warning" choice:"info" choice:"request" choice:"debug" description:"level of information to write on standart output or in a file" default-mask:"debug" validate:"regexp=^(quiet|critical|error|warning|info|request|debug)?$"`
 }
 
 var (
@@ -145,6 +146,11 @@ func applyConfiguration() (err error) {
 	if err = validator.Validate(Config); err != nil {
 		return err
 	}
+
+	// check TLS configuration
+	// if Config.TLSCertFile != "" && (Config.TLSKeyFile == "" || Config.TLSClientsCAFile == "") {
+	// 	return errors.New("TLSCertFile, TLSKeyFile and TLSClientsCA are required for TLS communication")
+	// }
 
 	// apply environment config
 	if Config.Environment != "" {

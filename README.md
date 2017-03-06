@@ -28,16 +28,19 @@ Usage:
   nebulo
 
 Application Options:
-  -h, --help                                                show this help message
-      --config-gen=                                         generate a configuration file for the actual configuration to the specified file and quit
-  -c, --config-file=                                        specify a configuration file (be cautious on infinite-recursive-configuration)
-  -e, --environment=[dev|alpha|prod]                        environment to use for external services connection purpose - this parameter is required
-  -a, --address=                                            override environment address to use to listen to (default: depend on -e (environment))
-  -p, --port=                                               override environment port to use to listen to (default: depend on -e (environment))
-      --tls-crt-file=                                       tls certificate file used to encrypt communication
-      --tls-key-file=                                       tls certificate key used to encrypt communication
-  -l, --logging-file=                                       the file where write the log (default: no file, standart output)
+  -h, --help                                                      show this help message
+      --config-dont-load-default                                  choose to load or not the default configuration files
+      --config-gen=                                               generate a configuration file for the actual configuration to the specified file and quit
+  -c, --config-file=                                              specify a configuration file (be cautious on infinite-recursive-configuration)
+  -e, --environment=[dev|beta|prod]                               environment to use for external services connection purpose - this parameter is required
+  -a, --address=                                                  override environment address to use to listen to (default: depend on -e (environment))
+  -p, --port=                                                     override environment port to use to listen to (default: depend on -e (environment))
+      --tls-crt-file=                                             tls certificate file used to encrypt communication
+      --tls-key-file=                                             tls certificate key used to encrypt communication
+  -l, --logging-file=                                             the file where write the log (default: no file, standart output)
   -v, --verbose=[quiet|critical|error|warning|info|request|debug] level of information to write on standart output or in a file (default: debug)
+      --jwt-secret=                                               JWT secret string to encode communication with client with - this parameter is required
+      --aes-secret=                                               AES secret string to encode communication with client with - this parameter is required
 ```
 
 

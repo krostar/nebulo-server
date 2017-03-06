@@ -25,6 +25,7 @@ func Log() echo.MiddlewareFunc {
 			stop := time.Now()
 
 			// active user
+			// TODO: get active user repr from context
 			user := "anon"
 
 			// active user IP
@@ -49,7 +50,7 @@ func Log() echo.MiddlewareFunc {
 
 			log.Requestf("%s - %s - \"%s %s\" %d %dms %s<>%d %q %q", remoteIP,
 				user, req.Method, req.URL.RequestURI(), res.Status,
-				stop.Sub(start).Nanoseconds()/1000, rxBytes, res.Size,
+				stop.Sub(start).Nanoseconds()/1000000, rxBytes, res.Size,
 				req.Referer(), req.UserAgent())
 			return
 		}

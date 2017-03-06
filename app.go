@@ -26,20 +26,17 @@ func init() {
 		log.Criticalf("Unable to load configuration: %v", err)
 		os.Exit(returncode.CONFIGFAILED)
 	}
-
 }
 
 func main() {
-	var err error
-	if config.Config.TLSCertFile != "" && config.Config.TLSKeyFile != "" {
-		log.Infof("Starting nebulo api %s with TLS encryption", BuildVersion)
-		err = router.RunTLS(env.EnvironmentConfig[env.Environment(config.Config.Environment)], config.Config.TLSCertFile, config.Config.TLSKeyFile)
-	} else {
-		log.Infof("Starting nebulo api %s without TLS encryption", BuildVersion)
-		err = router.Run(env.EnvironmentConfig[env.Environment(config.Config.Environment)])
-	}
+	log.Infof("Starting nebulo api %q", BuildVersion)
 
-	if err != nil {
+	if err := router.RunTLS(
+		env.EnvironmentConfig[env.Environment(config.Config.Environment)],
+		config.Config.TLSCertFile,
+		config.Config.TLSKeyFile,
+		config.Config.TLSClientsCACertFile,
+	); err != nil {
 		log.Criticalln(err)
 		os.Exit(returncode.ROUTERFAILED)
 	}

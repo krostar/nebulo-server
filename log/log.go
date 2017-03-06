@@ -28,7 +28,7 @@ func SetOutputFile(filename string) (err error) {
 	if err != nil {
 		return err
 	}
-	Debugln("Logs will now be writted on " + filename + ", leaving stdout.")
+	Debugf("Logs will now be writted on %s, leaving stdout", filename)
 	SetOutput(f)
 	return nil
 }

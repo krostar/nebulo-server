@@ -25,14 +25,20 @@ _testmain.go
 *.prof
 
 ## nebulo-specific
+config.ini
+
+# vendors
 vendor/*
 !vendor/vendor.json
+
+# binaries and build
 app
 nebulo
 release/
 build/
 coverage/
+
+# useless dirs
 .tmp/
-config.ini
-*.pem
 postman/
+certs/

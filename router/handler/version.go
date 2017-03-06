@@ -27,7 +27,7 @@ var (
  * @apiGroup Other
  *
  * @apiExample {curl} Usage example
- *		$>curl -X GET "http://127.0.0.1:17241/version"
+ *		$>curl -X GET --cacert ca.crt -v "https://api.nebulo.io/version/"
  *
  * @apiSuccess (Success) {nothing} 200 OK
  * @apiSuccessExample {json} Success example
@@ -42,6 +42,5 @@ func Version(c echo.Context) error {
 		BuildVersion: BuildVersion,
 		BuildTime:    BuildTime,
 	}
-
 	return c.JSON(http.StatusOK, b)
 }
