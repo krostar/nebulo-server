@@ -87,6 +87,11 @@ func TestFileReal(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// readable
+	if err := File(existingRDableFilepath, "readable:createifmissing"); err != nil {
+		t.Fatal(err)
+	}
+
 	// writable
 	if err := File(existingRDWRableFilepath, "writable"); err != nil {
 		t.Fatal(err)
@@ -141,6 +146,12 @@ func TestStringLength(t *testing.T) {
 	if err := String("not-whats-required0", "custom:20|2|2|2"); err == nil {
 		t.Fatal("string should not pass custom test")
 	}
+	if err := String("missing param", "custom:20|2"); err == nil {
+		t.Fatal("string should not pass custom test")
+	}
+	if err := String("bad param", "custom:20|a"); err == nil {
+		t.Fatal("string should not pass custom test")
+	}
 	if err := String("", "custom:20|2|2|2"); err == nil {
 		t.Fatal("string should not pass custom test")
 	}
@@ -151,6 +162,12 @@ func TestStringLength(t *testing.T) {
 
 func TestStringOthers(t *testing.T) {
 	if err := String("a", "length|3"); err == nil {
+		t.Fatal("string should not pass length test")
+	}
+	if err := String("bad param", "length"); err == nil {
+		t.Fatal("string should not pass length test")
+	}
+	if err := String("bad param", "length|a"); err == nil {
 		t.Fatal("string should not pass length test")
 	}
 	if err := String("a", "length:least|3"); err == nil {

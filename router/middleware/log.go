@@ -25,7 +25,6 @@ func Log() echo.MiddlewareFunc {
 			stop := time.Now()
 
 			// active user
-			// TODO: get active user repr from context
 			user := "anon"
 
 			// active user IP

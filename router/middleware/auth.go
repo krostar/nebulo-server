@@ -4,6 +4,8 @@ import (
 	"errors"
 
 	"github.com/krostar/nebulo/router/httperror"
+	"github.com/krostar/nebulo/user"
+	up "github.com/krostar/nebulo/user/provider"
 	"github.com/labstack/echo"
 )
 
@@ -18,12 +20,19 @@ func Auth() echo.MiddlewareFunc {
 		return func(c echo.Context) (err error) {
 			if c.IsTLS() {
 				if len(c.Request().TLS.PeerCertificates) == 1 {
-					c.Set("userPublicKey", c.Request().TLS.PeerCertificates[0].PublicKey)
+					userCert := c.Request().TLS.PeerCertificates[0]
+
+					c.Set("userCert", userCert)
+					u, err := up.P.GetFromPublicKey(userCert.PublicKeyAlgorithm, userCert.PublicKey)
+					if err != nil {
+						return httperror.HTTPUnauthorizedError(user.ErrNotFound)
+					}
+					c.Set("user", u)
 				} else {
 					return httperror.HTTPUnauthorizedError(errCertificateNotProvider)
 				}
 			} else {
-				httperror.HTTPInternalServerError(errNoTLS)
+				return httperror.HTTPInternalServerError(errNoTLS)
 			}
 			return next(c)
 		}

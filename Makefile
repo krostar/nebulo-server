@@ -112,7 +112,7 @@ test_unit:
 # TODOs should not exist
 test_todo:
 	$Q echo -e '$(COLOR_PRINT)Testing presence of TODOs in code...$(COLOR_RESET)'
-	$Q find . -name vendor -prune -o -name "*.go" -exec grep -Hn "//TODO:" {} \;
+	$Q find . -name vendor -prune -o -name "*.go" -exec grep -Hn "// TODO:" {} \;
 	@[ "$(shell find . -name vendor -prune -o -name "*.go" -exec grep -Hn "//TODO:" {} \; | wc -l)" = "0" ]
 	$Q echo -e '$(COLOR_SUCCESS)Done$(COLOR_RESET)'
 

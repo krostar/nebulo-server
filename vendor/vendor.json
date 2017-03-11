@@ -3,12 +3,6 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "2Fy1Y6Z3lRRX1891WF/+HT4XS2I=",
-			"path": "github.com/dgrijalva/jwt-go",
-			"revision": "2268707a8f0843315e2004ee4f1d021dc08baedf",
-			"revisionTime": "2017-02-01T22:58:49Z"
-		},
-		{
 			"checksumSHA1": "KhsRogdBpJZ2jgO35be/eM1qyqc=",
 			"path": "github.com/jessevdk/go-flags",
 			"revision": "4e64e4a4e2552194cf594243e23aa9baf3b4297e",
@@ -21,18 +15,6 @@
 			"revisionTime": "2017-02-02T19:50:17Z"
 		},
 		{
-			"checksumSHA1": "22chhTocVf44fcbgok8GNzJMFK8=",
-			"path": "github.com/labstack/echo/middleware",
-			"revision": "a8b6864be328fcb5c2d96d32c75b750f84e0e4be",
-			"revisionTime": "2017-02-02T19:50:17Z"
-		},
-		{
-			"checksumSHA1": "NvfQq6Y6kh9cMw+y1m00ivEd5b4=",
-			"path": "github.com/labstack/gommon/bytes",
-			"revision": "f72d3c883f8ea180da8f085dd320804c41332ad1",
-			"revisionTime": "2017-01-12T04:03:50Z"
-		},
-		{
 			"checksumSHA1": "R6DzcBLEP0BONPpsyr+11N7xh5w=",
 			"path": "github.com/labstack/gommon/color",
 			"revision": "f72d3c883f8ea180da8f085dd320804c41332ad1",
@@ -41,12 +23,6 @@
 		{
 			"checksumSHA1": "uHA6zbtxzJce4r+6uk8zu11qkuk=",
 			"path": "github.com/labstack/gommon/log",
-			"revision": "f72d3c883f8ea180da8f085dd320804c41332ad1",
-			"revisionTime": "2017-01-12T04:03:50Z"
-		},
-		{
-			"checksumSHA1": "XvsHo25Kr69E5xxTDatXzCQc6sI=",
-			"path": "github.com/labstack/gommon/random",
 			"revision": "f72d3c883f8ea180da8f085dd320804c41332ad1",
 			"revisionTime": "2017-01-12T04:03:50Z"
 		},

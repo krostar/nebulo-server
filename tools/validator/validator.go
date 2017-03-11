@@ -6,7 +6,6 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/krostar/nebulo/log"
 	"github.com/krostar/nebulo/router/httperror"
 
 	validator "gopkg.in/validator.v2"
@@ -24,12 +23,10 @@ func init() {
 	// tell to the validator lib that we have some function to use for our custom validators
 	var err error
 	if err = validator.SetValidationFunc("file", File); err != nil {
-		log.Criticalln(err)
-		panic(err)
+		panic(fmt.Errorf("unable to set validation function %q: %v", "file", err))
 	}
 	if err = validator.SetValidationFunc("string", String); err != nil {
-		log.Criticalln(err)
-		panic(err)
+		panic(fmt.Errorf("unable to set validation function %q: %v", "string", err))
 	}
 }
 
@@ -56,7 +53,7 @@ func validate(v interface{}, checksToCall string, checksMapping checkMap) (err e
 				if checkDef.omitError {
 					return nil
 				}
-				return err
+				return fmt.Errorf("validation check failed: %v", err)
 			}
 
 		} else {

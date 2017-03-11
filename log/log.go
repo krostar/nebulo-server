@@ -26,7 +26,7 @@ func init() {
 func SetOutputFile(filename string) (err error) {
 	f, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0600)
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to open file %s: %v", filename, err)
 	}
 	Debugf("Logs will now be writted on %s, leaving stdout", filename)
 	SetOutput(f)

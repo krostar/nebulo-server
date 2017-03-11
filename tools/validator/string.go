@@ -114,7 +114,7 @@ func checkStringCustom(str string, param string) (err error) {
 		for index, opt := range options {
 			conv, err := strconv.Atoi(opt)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("atoi conversion failed: %v", err)
 			}
 			convertedOptions[index] = conv
 		}

@@ -3,9 +3,11 @@ package handler
 import (
 	"bytes"
 	"crypto/rand"
+	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
+	"io"
 	"math/big"
 	"net/http"
 	"strconv"
@@ -14,6 +16,8 @@ import (
 	"github.com/krostar/nebulo/config"
 	"github.com/krostar/nebulo/router/httperror"
 	"github.com/krostar/nebulo/tools/cert"
+	"github.com/krostar/nebulo/user"
+	up "github.com/krostar/nebulo/user/provider"
 	"github.com/labstack/echo"
 )
 
@@ -45,32 +49,17 @@ import (
  * @apiError (Errors 5XX) {json} 500 Internal server error
 */
 func UserCreate(c echo.Context) error {
-	// TODO: look for existing user with same public key
 
-	// load certificate authority
-	caCRT, caPrivateKey, err := cert.CAFromFiles(
-		config.Config.TLSClientsCACertFile,
-		config.Config.TLSClientsCAKeyFile,
-		[]byte(config.Config.TLSClientsCAKeyPassword),
-	)
+	clientCSR, caCRT, caPrivateKey, err := loadCertificate(c.Request().Header.Get("Content-Length"), c.Request().Body)
 	if err != nil {
-		return httperror.HTTPInternalServerError(fmt.Errorf("unable to fetch certificate authority files: %v", err))
+		return err
 	}
 
-	// get client certificate request from body
-	bodyLength, err := strconv.ParseInt(c.Request().Header.Get("Content-Length"), 10, 64)
-	if err != nil {
-		return httperror.HTTPBadRequestError(fmt.Errorf("bad content-length: %v", err))
-	}
-	rawBodyReader := bytes.NewBuffer(make([]byte, 0, bodyLength))
-	_, err = rawBodyReader.ReadFrom(c.Request().Body)
-	if err != nil {
-		return httperror.HTTPBadRequestError(fmt.Errorf("unable to read from raw body: %v", err))
-	}
-	rawBody := rawBodyReader.Bytes()
-	clientCSR, err := cert.CSRFromPEM(rawBody, nil)
-	if err != nil {
-		return httperror.HTTPBadRequestError(fmt.Errorf("unable to convert PEM certificate to certificate request: %v", err))
+	// check if user exist
+	if _, err = up.P.GetFromPublicKey(clientCSR.PublicKeyAlgorithm, clientCSR.PublicKey); err == nil {
+		return httperror.UserExist()
+	} else if err != nil && err != user.ErrNotFound {
+		return httperror.HTTPInternalServerError(err)
 	}
 
 	// create client certificate template
@@ -83,7 +72,7 @@ func UserCreate(c echo.Context) error {
 		Issuer:             caCRT.Subject,
 		Subject:            clientCSR.Subject,
 		NotBefore:          time.Now(),
-		NotAfter:           time.Now().Add(24 * time.Hour),
+		NotAfter:           time.Now().Add(7 * time.Hour * 24),
 		KeyUsage:           x509.KeyUsageDigitalSignature,
 		ExtKeyUsage:        []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
 	}
@@ -94,6 +83,19 @@ func UserCreate(c echo.Context) error {
 		return httperror.HTTPInternalServerError(fmt.Errorf("unable to create certificate: %v", err))
 	}
 
+	storablePublicKey, err := x509.MarshalPKIXPublicKey(clientCSR.PublicKey)
+	if err != nil {
+		return httperror.HTTPInternalServerError(fmt.Errorf("unable to marshal public key: %v", err))
+	}
+	newUser := &user.User{
+		SignUp:             time.Now(),
+		PublicKeyDER:       storablePublicKey,
+		PublicKeyAlgorithm: clientCSR.PublicKeyAlgorithm,
+	}
+	if err = up.P.Register(newUser); err != nil {
+		return httperror.HTTPInternalServerError(fmt.Errorf("unable to register user in user provider: %v", err))
+	}
+
 	// send back the generated certificate
 	c.Response().WriteHeader(http.StatusCreated)
 	c.Response().Header().Add("Content-Type", "application/x-x509-user-cert")
@@ -101,5 +103,35 @@ func UserCreate(c echo.Context) error {
 	if err != nil {
 		return httperror.HTTPInternalServerError(fmt.Errorf("unable to send back the certificate: %v", err))
 	}
+
 	return nil
+}
+
+func loadCertificate(contentLengthHeader string, requestBody io.Reader) (clientCSR *x509.CertificateRequest, caCRT *x509.Certificate, caPrivateKey *rsa.PrivateKey, err error) {
+	// get client certificate request from body
+	bodyLength, err := strconv.ParseInt(contentLengthHeader, 10, 64)
+	if err != nil {
+		return nil, nil, nil, httperror.HTTPBadRequestError(fmt.Errorf("bad content-length: %v", err))
+	}
+	rawBodyReader := bytes.NewBuffer(make([]byte, 0, bodyLength))
+	_, err = rawBodyReader.ReadFrom(requestBody)
+	if err != nil {
+		return nil, nil, nil, httperror.HTTPBadRequestError(fmt.Errorf("unable to read from raw body: %v", err))
+	}
+	rawBody := rawBodyReader.Bytes()
+	clientCSR, err = cert.CSRFromPEM(rawBody, nil)
+	if err != nil {
+		return nil, nil, nil, httperror.HTTPBadRequestError(fmt.Errorf("unable to convert PEM certificate to certificate request: %v", err))
+	}
+
+	// load certificate authority
+	caCRT, caPrivateKey, err = cert.CAFromFiles(
+		config.Config.TLSClientsCACertFile,
+		config.Config.TLSClientsCAKeyFile,
+		[]byte(config.Config.TLSClientsCAKeyPassword),
+	)
+	if err != nil {
+		return nil, nil, nil, httperror.HTTPInternalServerError(fmt.Errorf("unable to fetch certificate authority files: %v", err))
+	}
+	return clientCSR, caCRT, caPrivateKey, nil
 }

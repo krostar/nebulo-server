@@ -3,6 +3,7 @@ package router
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net"
@@ -14,7 +15,6 @@ import (
 	"github.com/krostar/nebulo/router/httperror"
 	nmiddleware "github.com/krostar/nebulo/router/middleware"
 	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
 )
 
 var (
@@ -45,13 +45,13 @@ func setupRouter(environment *env.Config) {
 func createTLSConfig(certFile string, keyFile string, clientCAFilepath string) (config *tls.Config, err error) {
 	cer, err := tls.LoadX509KeyPair(certFile, keyFile)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to load tls key pair: %v", err)
 	}
 
 	// Load our CA certificate
 	clientCAFile, err := ioutil.ReadFile(clientCAFilepath)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to read file %s: %v", clientCAFile, err)
 	}
 
 	clientCAPool := x509.NewCertPool()
@@ -75,10 +75,9 @@ func createTLSConfig(certFile string, keyFile string, clientCAFilepath string) (
 }
 
 func setupMiddlewares() {
-	router.Use(nmiddleware.Log())
-	router.Use(nmiddleware.Recover()) // in case of panic, recover and don't quit
-	router.Use(middleware.RemoveTrailingSlash())
+	router.Pre(nmiddleware.Recover()) // in case of panic, recover and don't quit
 	router.Use(nmiddleware.Misc())
+	router.Use(nmiddleware.Log())
 
 	puMdw["auth"] = nmiddleware.Auth()
 }
@@ -124,7 +123,7 @@ func run(environment *env.Config, tlsConfig *tls.Config) error {
 
 	listener, err := net.Listen("tcp4", router.Server.Addr)
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to listen on %s: %v", router.Server.Addr, err)
 	}
 
 	if tlsConfig != nil {
@@ -138,7 +137,7 @@ func run(environment *env.Config, tlsConfig *tls.Config) error {
 func RunTLS(environment *env.Config, certFile string, keyFile string, clientsCAFile string) error {
 	tlsConfig, err := createTLSConfig(certFile, keyFile, clientsCAFile)
 	if err != nil {
-		return err
+		return fmt.Errorf("tls configuration error: %v", err)
 	}
 	return run(environment, tlsConfig)
 }

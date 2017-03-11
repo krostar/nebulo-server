@@ -22,18 +22,6 @@ func (e *HTTPError) Error() (err string) {
 	return err
 }
 
-// HTTPUnsupportedMediaTypeError handle the 415 HTTP error
-func HTTPUnsupportedMediaTypeError(parameters interface{}) (herr *HTTPError) {
-	if errType, ok := parameters.(error); ok {
-		parameters = errType.Error()
-	}
-	return &HTTPError{
-		Code:       http.StatusUnsupportedMediaType,
-		Err:        "http_unsuported_media_type",
-		Parameters: parameters,
-	}
-}
-
 // HTTPBadRequestError handle the 400 HTTP error
 func HTTPBadRequestError(parameters interface{}) (herr *HTTPError) {
 	if errType, ok := parameters.(error); ok {
@@ -42,18 +30,6 @@ func HTTPBadRequestError(parameters interface{}) (herr *HTTPError) {
 	return &HTTPError{
 		Code:       http.StatusBadRequest,
 		Err:        "http_bad_request",
-		Parameters: parameters,
-	}
-}
-
-// HTTPNotFoundError handle the 404 HTTP error
-func HTTPNotFoundError(parameters interface{}) (herr *HTTPError) {
-	if errType, ok := parameters.(error); ok {
-		parameters = errType.Error()
-	}
-	return &HTTPError{
-		Code:       http.StatusNotFound,
-		Err:        "http_not_found",
 		Parameters: parameters,
 	}
 }
@@ -70,6 +46,18 @@ func HTTPUnauthorizedError(parameters interface{}) (herr *HTTPError) {
 	}
 }
 
+// HTTPNotFoundError handle the 404 HTTP error
+func HTTPNotFoundError(parameters interface{}) (herr *HTTPError) {
+	if errType, ok := parameters.(error); ok {
+		parameters = errType.Error()
+	}
+	return &HTTPError{
+		Code:       http.StatusNotFound,
+		Err:        "http_not_found",
+		Parameters: parameters,
+	}
+}
+
 // HTTPMethodNotAllowedError handle the 405 HTTP error
 func HTTPMethodNotAllowedError(parameters interface{}) (herr *HTTPError) {
 	if errType, ok := parameters.(error); ok {
@@ -78,6 +66,18 @@ func HTTPMethodNotAllowedError(parameters interface{}) (herr *HTTPError) {
 	return &HTTPError{
 		Code:       http.StatusMethodNotAllowed,
 		Err:        "http_method_not_allowed",
+		Parameters: parameters,
+	}
+}
+
+// HTTPConflict handle the 409 HTTP error
+func HTTPConflict(parameters interface{}) (herr *HTTPError) {
+	if errType, ok := parameters.(error); ok {
+		parameters = errType.Error()
+	}
+	return &HTTPError{
+		Code:       http.StatusConflict,
+		Err:        "http_conflict",
 		Parameters: parameters,
 	}
 }
@@ -91,6 +91,18 @@ func HTTPRequestEntityTooLargeError(parameters interface{}) (herr *HTTPError) {
 	return &HTTPError{
 		Code:       http.StatusRequestEntityTooLarge,
 		Err:        "http_request_entity_too_large",
+		Parameters: parameters,
+	}
+}
+
+// HTTPUnsupportedMediaTypeError handle the 415 HTTP error
+func HTTPUnsupportedMediaTypeError(parameters interface{}) (herr *HTTPError) {
+	if errType, ok := parameters.(error); ok {
+		parameters = errType.Error()
+	}
+	return &HTTPError{
+		Code:       http.StatusUnsupportedMediaType,
+		Err:        "http_unsuported_media_type",
 		Parameters: parameters,
 	}
 }

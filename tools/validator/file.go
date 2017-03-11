@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 )
 
 var (
@@ -40,9 +41,22 @@ func checkFileOmitEmpty(str string, param string) (err error) {
 }
 
 func checkFileReadable(str string, param string) (err error) {
-	file, err := os.OpenFile(str, os.O_RDONLY, 0600)
+
+	flag := os.O_RDONLY
+
+	if param != "" {
+		options := strings.Split(param, "|")
+		for _, option := range options {
+			switch option {
+			case "createifmissing":
+				flag |= os.O_CREATE
+			}
+		}
+	}
+
+	file, err := os.OpenFile(str, flag, 0600)
 	if err != nil {
-		return fmt.Errorf("%s: %s", str, err)
+		return fmt.Errorf("unable to open file %s: %v", str, err)
 	}
 	defer func() {
 		if err = file.Close(); err != nil {
@@ -55,7 +69,7 @@ func checkFileReadable(str string, param string) (err error) {
 func checkFileWritable(str string, param string) (err error) {
 	file, err := os.OpenFile(str, os.O_RDWR, 0600)
 	if err != nil {
-		return fmt.Errorf("%s: %s", str, err)
+		return fmt.Errorf("unable to open file %s: %s", str, err)
 	}
 	defer func() {
 		if err = file.Close(); err != nil {
@@ -77,7 +91,7 @@ func checkFileWritable(str string, param string) (err error) {
 	// if file was empty, truncate(0) to avoid file length changement
 	if fileIsEmpty {
 		if err = os.Truncate(str, 0); err != nil {
-			return err
+			return fmt.Errorf("unable to truncate file %s: %v", str, err)
 		}
 	} else {
 		if w, errW := file.WriteAt(readed, offset); w != 1 || errW != nil {
@@ -92,7 +106,7 @@ func saveFileStateBeforeWritting(file *os.File) (offset int64, readed []byte, fi
 	// make sure we know where to write to remove what we write later
 	bof, err := file.Seek(0, 0)
 	if err != nil {
-		return 0, nil, false, err
+		return 0, nil, false, fmt.Errorf("unable to seek: %v", err)
 	}
 
 	// we want to leave file as we found it
@@ -104,7 +118,7 @@ func saveFileStateBeforeWritting(file *os.File) (offset int64, readed []byte, fi
 			fileIsEmpty = true
 			err = nil
 		} else {
-			return 0, nil, false, err
+			return 0, nil, false, fmt.Errorf("unable to read: %v", err)
 		}
 	}
 	return bof, readed, fileIsEmpty, err

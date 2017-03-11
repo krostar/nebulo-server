@@ -23,7 +23,7 @@ func init() {
 	handler.BuildVersion = BuildVersion
 
 	if err := config.Load(); err != nil {
-		log.Criticalf("Unable to load configuration: %v", err)
+		log.Criticalf("unable to load configuration: %v", err)
 		os.Exit(returncode.CONFIGFAILED)
 	}
 }
@@ -37,7 +37,7 @@ func main() {
 		config.Config.TLSKeyFile,
 		config.Config.TLSClientsCACertFile,
 	); err != nil {
-		log.Criticalln(err)
+		log.Criticalf("router failed: %v", err)
 		os.Exit(returncode.ROUTERFAILED)
 	}
 
