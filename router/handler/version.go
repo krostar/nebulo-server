@@ -27,7 +27,7 @@ var (
  * @apiGroup Other
  *
  * @apiExample {curl} Usage example
- *		$>curl -X GET --cacert ca.crt -v "https://api.nebulo.io/version/"
+ *		$>curl -X GET -v "https://api.nebulo.io/version/"
  *
  * @apiSuccess (Success) {nothing} 200 OK
  * @apiSuccessExample {json} Success example
@@ -36,11 +36,13 @@ var (
  *			"build_version": "0.1.0",
  *			"build_time": "2017-02-16-0624 UTC",
  *		}
+ *
+ * @apiError (Errors 5XX) {json} 500 Internal server error: server failed to handle the request
  */
 func Version(c echo.Context) error {
 	b := build{
 		BuildVersion: BuildVersion,
 		BuildTime:    BuildTime,
 	}
-	return c.JSON(http.StatusOK, b)
+	return c.JSONPretty(http.StatusOK, b, "    ")
 }

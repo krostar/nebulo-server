@@ -66,12 +66,34 @@ func (pf *ProviderFile) Register(u *user.User) error {
 		return ErrProviderNil
 	}
 
+	maxID := 0
+	for _, u := range pf.users {
+		if u.ID > maxID {
+			maxID = u.ID
+		}
+	}
+	u.ID = maxID + 1
+
 	pf.users = append(pf.users, u)
-	return pf.save()
+	return pf.Save(u)
 }
 
-// GetFromPublicKey is used to get the user from his public key
-func (pf *ProviderFile) GetFromPublicKey(publicKeyAlgo x509.PublicKeyAlgorithm, publicKey interface{}) (u *user.User, err error) {
+// FindByID is used to find a user from his ID
+func (pf *ProviderFile) FindByID(ID int) (u *user.User, err error) {
+	if pf == nil {
+		return nil, ErrProviderNil
+	}
+
+	for _, u := range pf.users {
+		if u.ID == ID {
+			return u, nil
+		}
+	}
+	return nil, user.ErrNotFound
+}
+
+// FindByPublicKey is used to find a user from his public key
+func (pf *ProviderFile) FindByPublicKey(publicKeyAlgo x509.PublicKeyAlgorithm, publicKey interface{}) (u *user.User, err error) {
 	if pf == nil {
 		return nil, ErrProviderNil
 	}
@@ -88,7 +110,12 @@ func (pf *ProviderFile) GetFromPublicKey(publicKeyAlgo x509.PublicKeyAlgorithm, 
 	return nil, user.ErrNotFound
 }
 
-func (pf *ProviderFile) save() (err error) {
+// Save save modifications made on user struct
+func (pf *ProviderFile) Save(u *user.User) (err error) {
+	if pf == nil {
+		return ErrProviderNil
+	}
+
 	raw, err := json.MarshalIndent(pf.users, "", "  ")
 	if err != nil {
 		return err

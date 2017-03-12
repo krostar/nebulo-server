@@ -38,7 +38,7 @@ release/
 build/
 coverage/
 
-# useless dirs
+# useless dirs and files used in development
 .tmp/
-postman/
 certs/
+userprovider.json

@@ -10,7 +10,9 @@ import (
 // to get informations about a user
 type Provider interface {
 	Register(u *user.User) (err error)
-	GetFromPublicKey(publicKeyAlgo x509.PublicKeyAlgorithm, publicKey interface{}) (u *user.User, err error)
+	FindByPublicKey(publicKeyAlgo x509.PublicKeyAlgorithm, publicKey interface{}) (u *user.User, err error)
+	FindByID(ID int) (u *user.User, err error)
+	Save(u *user.User) (err error)
 }
 
 // P is the currently used provider

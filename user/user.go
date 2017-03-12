@@ -23,8 +23,8 @@ type User struct {
 	FingerPrint        string                  `json:"key_fingerprint"`
 	DisplayName        string                  `json:"display_name"`
 	SignUp             time.Time               `json:"signup"`
-	LoginFirst         *time.Time              `json:"login_first"`
-	LoginLast          *time.Time              `json:"login_last"`
+	LoginFirst         time.Time               `json:"login_first"`
+	LoginLast          time.Time               `json:"login_last"`
 }
 
 // Repr return an uniq representation of a given user

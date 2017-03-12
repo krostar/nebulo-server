@@ -44,9 +44,9 @@ import (
 		FG4WG+sgP5x/bNY5fZ4=
 		-----END CERTIFICATE-----
  *
- * @apiError (Errors 4XX) {json} 401 Unauthorized
- * @apiError (Errors 4XX) {json} 404 Bad Request
- * @apiError (Errors 5XX) {json} 500 Internal server error
+ * @apiError (Errors 4XX) {json} 400 Bad Request: unable to load user certificate request
+ * @apiError (Errors 4XX) {json} 409 Conflict: user already exist
+ * @apiError (Errors 5XX) {json} 500 Internal server error: server failed to handle the request
 */
 func UserCreate(c echo.Context) error {
 
@@ -56,7 +56,7 @@ func UserCreate(c echo.Context) error {
 	}
 
 	// check if user exist
-	if _, err = up.P.GetFromPublicKey(clientCSR.PublicKeyAlgorithm, clientCSR.PublicKey); err == nil {
+	if _, err = up.P.FindByPublicKey(clientCSR.PublicKeyAlgorithm, clientCSR.PublicKey); err == nil {
 		return httperror.UserExist()
 	} else if err != nil && err != user.ErrNotFound {
 		return httperror.HTTPInternalServerError(err)
@@ -91,6 +91,7 @@ func UserCreate(c echo.Context) error {
 		SignUp:             time.Now(),
 		PublicKeyDER:       storablePublicKey,
 		PublicKeyAlgorithm: clientCSR.PublicKeyAlgorithm,
+		FingerPrint:        cert.FingerprintSHA256(storablePublicKey),
 	}
 	if err = up.P.Register(newUser); err != nil {
 		return httperror.HTTPInternalServerError(fmt.Errorf("unable to register user in user provider: %v", err))

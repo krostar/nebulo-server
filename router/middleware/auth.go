@@ -2,6 +2,8 @@ package middleware
 
 import (
 	"errors"
+	"fmt"
+	"time"
 
 	"github.com/krostar/nebulo/router/httperror"
 	"github.com/krostar/nebulo/user"
@@ -23,9 +25,18 @@ func Auth() echo.MiddlewareFunc {
 					userCert := c.Request().TLS.PeerCertificates[0]
 
 					c.Set("userCert", userCert)
-					u, err := up.P.GetFromPublicKey(userCert.PublicKeyAlgorithm, userCert.PublicKey)
+					u, err := up.P.FindByPublicKey(userCert.PublicKeyAlgorithm, userCert.PublicKey)
 					if err != nil {
 						return httperror.HTTPUnauthorizedError(user.ErrNotFound)
+					}
+
+					now := time.Now()
+					if u.LoginFirst.IsZero() {
+						u.LoginFirst = now
+					}
+					u.LoginLast = now
+					if err = up.P.Save(u); err != nil {
+						return httperror.HTTPInternalServerError(fmt.Errorf("User save failed: %v", err))
 					}
 					c.Set("user", u)
 				} else {

@@ -2,7 +2,9 @@ package cert
 
 import (
 	"crypto/rsa"
+	"crypto/sha256"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/pem"
 	"errors"
 	"fmt"
@@ -71,4 +73,16 @@ func LoadPEM(rawCertificate []byte, password []byte) (der []byte, err error) {
 		}
 	}
 	return der, nil
+}
+
+// FingerprintSHA256 returns the user presentation of the key's
+// fingerprint as unpadded base64 encoded sha256 hash.
+// This format was introduced from OpenSSH 6.8.
+// https://www.openssh.com/txt/release-6.8
+// https://tools.ietf.org/html/rfc4648#section-3.2 (unpadded base64 encoding)
+// inspired from x/crypto/ssh package
+func FingerprintSHA256(pubKeyDER []byte) string {
+	sha256sum := sha256.Sum256(pubKeyDER)
+	hash := base64.RawStdEncoding.EncodeToString(sha256sum[:])
+	return "SHA256:" + hash
 }
