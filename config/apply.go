@@ -18,24 +18,15 @@ func applyConfiguration() (err error) {
 	}
 
 	// apply environment config
-	if Config.Environment != "" {
-		environment := env.EnvironmentConfig[env.Environment(Config.Environment)]
-		if Config.Address != "" {
-			environment.Address = Config.Address
-		}
-		if Config.Port > 0 {
-			environment.Port = Config.Port
-		}
+	_, err = applyEnvironmentConfiguration()
+	if err != nil {
+		return fmt.Errorf("apply provider configuration failed: %v", err)
 	}
 
 	// apply log-related config
-	if Config.Verbose != "" {
-		log.Verbosity = log.VerboseMapping[Config.Verbose]
-	}
-	if Config.LogFile != "" {
-		if err = log.SetOutputFile(Config.LogFile); err != nil {
-			return fmt.Errorf("unable to set log outputfile: %v", err)
-		}
+	err = applyLoggingConfiguration()
+	if err != nil {
+		return fmt.Errorf("apply logging configuration failed: %v", err)
 	}
 
 	// apply provider-related config
@@ -50,11 +41,37 @@ func applyConfiguration() (err error) {
 	return nil
 }
 
+func applyEnvironmentConfiguration() (environment *env.Config, err error) {
+	if Config.Environment.Type != "" {
+		environment = env.EnvironmentConfig[env.Environment(Config.Environment.Type)]
+		if Config.Environment.Address != "" {
+			environment.Address = Config.Environment.Address
+		}
+		if Config.Environment.Port > 0 {
+			environment.Port = Config.Environment.Port
+		}
+		return environment, nil
+	}
+	return nil, errors.New("unknown environment")
+}
+
+func applyLoggingConfiguration() (err error) {
+	if Config.Logging.Verbose != "" {
+		log.Verbosity = log.VerboseMapping[Config.Logging.Verbose]
+	}
+	if Config.Logging.File != "" {
+		if err = log.SetOutputFile(Config.Logging.File); err != nil {
+			return fmt.Errorf("unable to set log outputfile: %v", err)
+		}
+	}
+	return nil
+}
+
 func applyProviderConfiguration() (p up.Provider, err error) {
-	switch Config.UserProvider {
+	switch Config.User.Provider {
 	case "file":
 		p, err = upf.NewFromConfig(&upf.Config{
-			Filepath: Config.UserProviderFile,
+			Filepath: Config.User.ProviderFile,
 		})
 		if err != nil {
 			return nil, fmt.Errorf("user-provider-file creation failed: %v", err)
@@ -63,6 +80,6 @@ func applyProviderConfiguration() (p up.Provider, err error) {
 		return nil, errors.New("unknown user provider")
 	}
 
-	log.Debugf("Using %s to provide user", Config.UserProvider)
+	log.Debugf("Using %s to provide user", Config.User.Provider)
 	return p, nil
 }

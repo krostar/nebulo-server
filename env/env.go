@@ -2,9 +2,8 @@ package env
 
 // Config represent an environment with differents kind of informations
 type Config struct {
-	Address    string
-	Port       int
-	Restricted bool
+	Address string
+	Port    int
 }
 
 // Environment is the type of all the available environment
@@ -15,9 +14,9 @@ const (
 	// with more details in case of HTTP errors
 	DEV = Environment("dev")
 
-	// BETA is the environment used in pre-production,
+	// PREPROD is the environment used in pre-production,
 	// the only difference with production environment is the services used
-	BETA = Environment("beta")
+	PREPROD = Environment("preprod")
 
 	// PROD is the environment used in production,
 	// with inexistant debug in case of error client-side
@@ -32,19 +31,16 @@ var (
 func init() {
 	EnvironmentConfig = map[Environment]*Config{
 		DEV: &Config{
-			Address:    "0.0.0.0",
-			Port:       17241,
-			Restricted: false,
+			Address: "0.0.0.0",
+			Port:    17241,
 		},
-		BETA: &Config{
-			Address:    "127.0.0.1",
-			Port:       17242,
-			Restricted: true,
+		PREPROD: &Config{
+			Address: "127.0.0.1",
+			Port:    17242,
 		},
 		PROD: &Config{
-			Address:    "127.0.0.1",
-			Port:       17243,
-			Restricted: false,
+			Address: "127.0.0.1",
+			Port:    17243,
 		},
 	}
 }

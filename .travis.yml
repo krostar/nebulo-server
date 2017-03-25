@@ -21,24 +21,14 @@ before_install:
 
 install:
   - echo "install step"
-  - curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
-  - sudo apt-get install --yes nodejs build-essential
-  - sudo npm install -g apidoc@">=0.16.0 <0.17.0"
-  - which apidoc
-  - whereis apidoc
-  - apidoc -v
-  - go get -u github.com/kardianos/govendor
-  - govendor --version || true
-  - go get -u github.com/alecthomas/gometalinter
-  - govendor sync -v
-  - gometalinter --install --update --force
-  - go get github.com/mattn/goveralls
+  - go get github.com/twitchtv/retool
+  - make vendor
 
 script:
   - echo "script step"
-  - ([ -n "${TRAVIS_TAG}" ] && make release TAG=${TRAVIS_TAG}) || make test
+  - ([ -n "${TRAVIS_TAG}" ] && make release CI=1 TAG=${TRAVIS_TAG}) || make test CI=1
   - make coverage
-  - goveralls -coverprofile=coverage/coverage.out -service=travis-ci
+  - retool do goveralls -coverprofile=coverage/coverage.out -service=travis-ci
 
 deploy:
   provider: releases

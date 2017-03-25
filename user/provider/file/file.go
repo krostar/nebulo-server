@@ -120,5 +120,5 @@ func (pf *ProviderFile) Save(u *user.User) (err error) {
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(pf.config.Filepath, raw, 640)
+	return ioutil.WriteFile(pf.config.Filepath, raw, 0640)
 }

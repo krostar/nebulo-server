@@ -1,5 +1,5 @@
 {
-    "Concurrency": 4,
+    "Concurrency": 8,
     "Deadline": "5m",
     "DisableAll": true,
     "Enable": [
@@ -22,7 +22,5 @@
         "varcheck",
         "dupl"
     ],
-    "Force": true,
-    "Update": true,
     "Vendor": true
 }

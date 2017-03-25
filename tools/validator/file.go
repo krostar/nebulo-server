@@ -111,7 +111,7 @@ func saveFileStateBeforeWritting(file *os.File) (offset int64, readed []byte, fi
 
 	// we want to leave file as we found it
 	fileIsEmpty = false
-	readed = make([]byte, 1, 1)
+	readed = make([]byte, 1)
 
 	if _, err = file.ReadAt(readed, 0); err != nil {
 		if err == io.EOF {

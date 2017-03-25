@@ -29,7 +29,7 @@ func init() {
 }
 
 func setupRouter(environment *env.Config) {
-	if env.Environment(config.Config.Environment) == env.DEV {
+	if env.Environment(config.Config.Environment.Type) == env.DEV {
 		router.Debug = true
 	} else {
 		router.Debug = false

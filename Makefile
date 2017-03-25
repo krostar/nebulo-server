@@ -12,7 +12,7 @@ TEST_COVERAGE_MODE	?= count
 CI					?= 0
 
 # Used only on function 'release', generate one binary per couple os/arch
-RELEASE_OS			?= linux windows darwin
+RELEASE_OS			?= linux darwin
 RELEASE_ARCH		?= 386 amd64
 
 # Temporary directories to use to generate binaries and documentation
@@ -46,19 +46,32 @@ else
 endif
 
 
-all : $(BINARY_NAME)
+all : build
 
 # Compile for current os/arch and save binary in $DIR_BUILD folder
 $(BINARY_NAME):
-	$Q echo -e '$(COLOR_PRINT)Building $(BINARY_NAME)...$(COLOR_RESET)'
+	$Q echo -e '$(COLOR_PRINT)Building $(DIR_BUILD)/bin/$(BINARY_NAME)...$(COLOR_RESET)'
 	$Q mkdir -p $(DIR_BUILD)/bin
 	$Q go build -o $(DIR_BUILD)/bin/$(BINARY_NAME) $(BUILD_FLAGS)
 	$Q echo -e '$(COLOR_SUCCESS)Compilation done without errors$(COLOR_RESET)'
 
-build: $(BINARY_NAME)
+# Synchronize vendors and tools
+vendor:
+	$Q echo -e '$(COLOR_PRINT)Syncing tools...$(COLOR_RESET)'
+	$Q retool sync
+	$Q echo -e '$(COLOR_PRINT)Syncing vendors...$(COLOR_RESET)'
+	$Q retool do govendor sync -v
+	$Q echo -e '$(COLOR_PRINT)Syncing linters...$(COLOR_RESET)'
+	$Q retool do gometalinter --install --update --force
+	$Q echo -e '$(COLOR_SUCCESS)Synchronization done without errors$(COLOR_RESET)'
 
+build: vendor $(BINARY_NAME)
+
+# Generate configuration file
 config: $(BINARY_NAME)
+	$Q echo -e '$(COLOR_PRINT)Generating $(CONFIGURATION_FILE)...$(COLOR_RESET)'
 	$Q [ "$(shell $(DIR_BUILD)/bin/$(BINARY_NAME) --config-dont-load-default --config-gen=$(CONFIGURATION_FILE) 2>&1 > /dev/null || echo $$? && false)" = "102" ]
+	$Q echo -e '$(COLOR_SUCCESS)Compilation done without errors$(COLOR_RESET)'
 
 # Compile for current os/arch and run binary
 run: $(BINARY_NAME)
@@ -69,7 +82,7 @@ run: $(BINARY_NAME)
 # Remove all non-essentials directories and files
 clean:
 	$Q echo -e '$(COLOR_PRINT)Cleaning...$(COLOR_RESET)'
-	$Q rm -rf $(DIR_BUILD) $(DIR_RELEASE) $(DIR_RELEASE_TMP)
+	$Q rm -rf $(DIR_BUILD) $(DIR_RELEASE) $(DIR_RELEASE_TMP) $(DIR_COVERAGE)
 	$Q echo -e '$(COLOR_SUCCESS)Cleaned$(COLOR_RESET)'
 
 # Generate the API documentation
@@ -84,23 +97,23 @@ doc: doc_api
 
 # Run code documentation server
 godoc:
-	$Q echo -e '$(COLOR_PRINT)Open a webbrowser and go on 127.0.0.1:6060 ...$(COLOR_RESET)'
+	$Q echo -e '$(COLOR_PRINT)Open a web browser and load 127.0.0.1:6060 ...$(COLOR_RESET)'
 	$Q godoc -http=:6060 -index
 	$Q echo -e '$(COLOR_PRINT)Terminated$(COLOR_RESET)'
 
 # Check for useless and missing dependencies
 test_dependencies:
 	$Q echo -e '$(COLOR_PRINT)Testing dependencies...$(COLOR_RESET)'
-	$Q govendor list +unused +missing
-	@[ "$(shell govendor list +unused +missing | wc -l)" = "0" ]
+	$Q retool do govendor list +unused +missing
+	@[ "$(shell retool do govendor list +unused +missing | wc -l)" = "0" ]
 	$Q echo -e '$(COLOR_SUCCESS)Done$(COLOR_RESET)'
 
 # Check syntax, format, useless, and non-optimized code
 test_code:
 	$Q echo -e '$(COLOR_PRINT)Testing code with linters...$(COLOR_RESET)'
-	$Q gofmt -d .
-	$Q [ $(shell gofmt -d . | wc -l) = 0 ]
-	$Q gometalinter --config=.gometalinter.json ./...
+	$Q find . -name vendor -prune -o -name _tools -prune -o -name "*.go" -exec gofmt -d {} \;
+	@[ $(shell find . -name vendor -prune -o -name _tools -prune -o -name "*.go" -exec gofmt -d {} \; | wc -l) = 0 ]
+	$Q retool do gometalinter --config=.gometalinter.json ./...
 	$Q echo -e '$(COLOR_SUCCESS)Done$(COLOR_RESET)'
 
 # Check unit tests
@@ -109,11 +122,11 @@ test_unit:
 	$Q go test -v -timeout 5s $(shell go list ./... | grep -v /vendor/)
 	$Q echo -e '$(COLOR_SUCCESS)Done$(COLOR_RESET)'
 
-# TODOs should not exist
+# TODOs should never exist
 test_todo:
 	$Q echo -e '$(COLOR_PRINT)Testing presence of TODOs in code...$(COLOR_RESET)'
-	$Q find . -name vendor -prune -o -name "*.go" -exec grep -Hn "// TODO:" {} \;
-	@[ "$(shell find . -name vendor -prune -o -name "*.go" -exec grep -Hn "//TODO:" {} \; | wc -l)" = "0" ]
+	$Q find . -name vendor -prune -o -name _tools -prune -o -name "*.go" -exec grep -Hn "//TODO:" {} \;
+	@[ "$(shell find . -name vendor -prune -o -name _tools -prune -o -name "*.go" -exec grep -Hn "//TODO:" {} \; | wc -l)" = "0" ]
 	$Q echo -e '$(COLOR_SUCCESS)Done$(COLOR_RESET)'
 
 # Check all kind of tests
@@ -121,6 +134,7 @@ test: test_dependencies test_code test_unit test_todo
 
 # Compute coverage and create coverage files
 coverage:
+	$Q echo -e '$(COLOR_PRINT)Generating test converage...$(COLOR_RESET)'
 	$Q rm -rf $(DIR_COVERAGE)
 	$Q mkdir -p $(DIR_COVERAGE)
 	$Q echo "mode: $(TEST_COVERAGE_MODE)" > $(DIR_COVERAGE)/coverage.out
@@ -130,6 +144,7 @@ coverage:
 	done
 	$Q rm -f $(DIR_COVERAGE)/coverage.tmp
 	$Q go tool cover -func=$(DIR_COVERAGE)/coverage.out
+	$Q echo -e '$(COLOR_SUCCESS)Done$(COLOR_RESET)'
 
 coverage_show: coverage
 	$Q go tool cover -html=$(DIR_COVERAGE)/coverage.out
@@ -163,4 +178,4 @@ release: config clean doc release_build
 	done
 
 
-.PHONY: all $(BINARY_NAME) build config run clean doc_api doc godoc test_dependencies test_code test_unit test_todo test coverage coverage_show release_build release
+.PHONY: all $(BINARY_NAME) vendor build config run clean doc_api doc godoc test_dependencies test_code test_unit test_todo test coverage coverage_show release_build release

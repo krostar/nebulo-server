@@ -127,9 +127,9 @@ func loadCertificate(contentLengthHeader string, requestBody io.Reader) (clientC
 
 	// load certificate authority
 	caCRT, caPrivateKey, err = cert.CAFromFiles(
-		config.Config.TLSClientsCACertFile,
-		config.Config.TLSClientsCAKeyFile,
-		[]byte(config.Config.TLSClientsCAKeyPassword),
+		config.Config.TLS.ClientsCACertFile,
+		config.Config.TLS.ClientsCAKeyFile,
+		[]byte(config.Config.TLS.ClientsCAKeyPassword),
 	)
 	if err != nil {
 		return nil, nil, nil, httperror.HTTPInternalServerError(fmt.Errorf("unable to fetch certificate authority files: %v", err))
