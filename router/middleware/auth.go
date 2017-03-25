@@ -35,8 +35,9 @@ func Auth() echo.MiddlewareFunc {
 						u.LoginFirst = now
 					}
 					u.LoginLast = now
+					// TODO: too hard to full save the user like this
 					if err = up.P.Save(u); err != nil {
-						return httperror.HTTPInternalServerError(fmt.Errorf("User save failed: %v", err))
+						return httperror.HTTPInternalServerError(fmt.Errorf("user save failed: %v", err))
 					}
 					c.Set("user", u)
 				} else {

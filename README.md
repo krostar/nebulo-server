@@ -1,4 +1,4 @@
-# [nebulo](https://github.com/krostar/nebulo) [![License](https://img.shields.io/github/license/krostar/nebulo.svg)](https://tldrlegal.com/license/mit-license) [![GitHub release](https://img.shields.io/github/release/krostar/nebulo.svg)](https://github.com/krostar/nebulo/releases/latest) [![Godoc](https://godoc.org/github.com/krostar/nebulo?status.svg)](https://godoc.org/github.com/krostar/nebulo)
+# [nebulo](https://github.com/krostar/nebulo) [![License](https://img.shields.io/github/license/krostar/nebulo.svg)](https://tldrlegal.com/license/gnu-general-public-license-v3-(gpl-3)) [![GitHub release](https://img.shields.io/github/release/krostar/nebulo.svg)](https://github.com/krostar/nebulo/releases/latest) [![Godoc](https://godoc.org/github.com/krostar/nebulo?status.svg)](https://godoc.org/github.com/krostar/nebulo)
 
 Nebulo is a secure way of instant messaging that respect and protect your privacy.
 
@@ -51,7 +51,7 @@ User Options:
 The API documentation of this project for the **dev** environment is available on [doc.nebulo.io/dev](https://doc.nebulo.io/dev), the Golang documentation is available on the [godoc website](https://godoc.org/github.com/krostar/nebulo)
 
 ## Licence
-Distributed under MIT License, please see license file, and/or browse [tldrlegal.com](https://tldrlegal.com/license/mit-license) for more details.
+Distributed under GPL-3 License, please see license file, and/or browse [tldrlegal.com](https://tldrlegal.com/license/gnu-general-public-license-v3-(gpl-3)) for more details.
 
 ## Contribute to the project
 ### Report bugs

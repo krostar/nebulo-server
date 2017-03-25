@@ -17,14 +17,14 @@ var (
 
 // User is the modelisation of an user
 type User struct {
-	ID                 int                     `json:"id"`
-	PublicKeyDER       []byte                  `json:"key_public_der"`
-	PublicKeyAlgorithm x509.PublicKeyAlgorithm `json:"key_public_algo"`
-	FingerPrint        string                  `json:"key_fingerprint"`
-	DisplayName        string                  `json:"display_name"`
-	SignUp             time.Time               `json:"signup"`
-	LoginFirst         time.Time               `json:"login_first"`
-	LoginLast          time.Time               `json:"login_last"`
+	ID                 int                     `json:"-" db:"id, primarykey, autoincrement"`
+	PublicKeyDER       []byte                  `json:"key_public_der" db:"key_public_der"`
+	PublicKeyAlgorithm x509.PublicKeyAlgorithm `json:"key_public_algo" db:"key_public_algo, size:50"`
+	FingerPrint        string                  `json:"key_fingerprint" db:"key_fingerprint"`
+	DisplayName        string                  `json:"display_name" db:"display_name, size:50"`
+	SignUp             time.Time               `json:"signup" db:"signup"`
+	LoginFirst         time.Time               `json:"login_first" db:"login_first"`
+	LoginLast          time.Time               `json:"login_last" db:"login_last"`
 }
 
 // Repr return an uniq representation of a given user

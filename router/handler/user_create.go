@@ -88,12 +88,11 @@ func UserCreate(c echo.Context) error {
 		return httperror.HTTPInternalServerError(fmt.Errorf("unable to marshal public key: %v", err))
 	}
 	newUser := &user.User{
-		SignUp:             time.Now(),
 		PublicKeyDER:       storablePublicKey,
 		PublicKeyAlgorithm: clientCSR.PublicKeyAlgorithm,
 		FingerPrint:        cert.FingerprintSHA256(storablePublicKey),
 	}
-	if err = up.P.Register(newUser); err != nil {
+	if _, err = up.P.Register(newUser); err != nil {
 		return httperror.HTTPInternalServerError(fmt.Errorf("unable to register user in user provider: %v", err))
 	}
 

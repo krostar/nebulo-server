@@ -7,7 +7,7 @@ import (
 	"github.com/krostar/nebulo/env"
 	"github.com/krostar/nebulo/log"
 	up "github.com/krostar/nebulo/user/provider"
-	upf "github.com/krostar/nebulo/user/provider/file"
+	upLite "github.com/krostar/nebulo/user/provider/sqlite"
 	validator "gopkg.in/validator.v2"
 )
 
@@ -68,10 +68,12 @@ func applyLoggingConfiguration() (err error) {
 }
 
 func applyProviderConfiguration() (p up.Provider, err error) {
-	switch Config.User.Provider {
-	case "file":
-		p, err = upf.NewFromConfig(&upf.Config{
-			Filepath: Config.User.ProviderFile,
+	switch Config.UserProvider.Type {
+	case "sqlite":
+		p, err = upLite.NewFromConfig(&upLite.Config{
+			Filepath:                Config.UserProvider.SQLiteFile,
+			CreateTablesIfNotExists: Config.UserProvider.CreateTablesIfNotExists,
+			DropTablesIfExists:      Config.UserProvider.DropTablesIfExists,
 		})
 		if err != nil {
 			return nil, fmt.Errorf("user-provider-file creation failed: %v", err)
@@ -80,6 +82,6 @@ func applyProviderConfiguration() (p up.Provider, err error) {
 		return nil, errors.New("unknown user provider")
 	}
 
-	log.Debugf("Using %s to provide user", Config.User.Provider)
+	log.Debugf("Using %s to provide user", Config.UserProvider.Type)
 	return p, nil
 }

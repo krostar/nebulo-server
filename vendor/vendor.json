@@ -3,10 +3,22 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "hmNDDXDul6neESgLuWwib7A1U7A=",
+			"path": "github.com/go-gorp/gorp",
+			"revision": "390956328094c74d7c75a7e71a4d17e9297ed90e",
+			"revisionTime": "2017-02-07T17:32:28Z"
+		},
+		{
 			"checksumSHA1": "HyzJVpU83/duL9rjkQ4fGE0cw5Q=",
 			"path": "github.com/jessevdk/go-flags",
 			"revision": "460c7bb0abd6e927f2767cadc91aa6ef776a98b4",
 			"revisionTime": "2017-02-12T22:02:46Z"
+		},
+		{
+			"checksumSHA1": "xXjxKqs3ECyWO5zjIVb2qgj9rcU=",
+			"path": "github.com/jmoiron/sqlx/reflectx",
+			"revision": "8ed836a8adb659e8492bcaa49e0880bb84075fe2",
+			"revisionTime": "2017-03-08T17:16:22Z"
 		},
 		{
 			"checksumSHA1": "RM1ukPZ4NGyHoKLC/vCcKk8DE5c=",
@@ -37,6 +49,12 @@
 			"path": "github.com/mattn/go-isatty",
 			"revision": "fc9e8d8ef48496124e79ae0df75490096eccf6fe",
 			"revisionTime": "2017-03-22T23:44:13Z"
+		},
+		{
+			"checksumSHA1": "Ef3+gi97QEvLS9VonbjOF/cZnDQ=",
+			"path": "github.com/mattn/go-sqlite3",
+			"revision": "b2e464529e88db676302aa63a4ce36711633950e",
+			"revisionTime": "2017-03-24T00:12:00Z"
 		},
 		{
 			"checksumSHA1": "LTOa3BADhwvT0wFCknPueQALm8I=",

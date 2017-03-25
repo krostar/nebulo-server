@@ -36,9 +36,11 @@ type tlsOptions struct {
 	ClientsCAKeyPassword string `long:"tls-clients-ca-key-pwd" description:"tls certification authority key password used to validate clients certificate for the tls mutual authentication" default-mask:"no password"`
 }
 
-type userOptions struct {
-	Provider     string `long:"user-provider" choice:"file" description:"provider to use to get users informations" validate:"regexp=^(file)?$"`
-	ProviderFile string `long:"user-provider-file" description:"provider file path where users informations are stored" validate:"-"`
+type userProviderOptions struct {
+	Type                    string `long:"user-provider" choice:"sqlite" description:"provider to use to get users informations" validate:"regexp=^(sqlite)?$"`
+	CreateTablesIfNotExists bool   `long:"user-provider-createtable" description:"create tables if not exists" default-mask:"false" validate:"-"`
+	DropTablesIfExists      bool   `long:"user-provider-droptables" description:"drop tables if exists" default-mask:"false" validate:"-"`
+	SQLiteFile              string `long:"user-provider-sqlite-file" description:"provider sqlite filepath where users informations are stored" validate:"-"`
 }
 
 // Options list all the available options of the program, with details useful for help command and validators to help validations of fields
@@ -48,7 +50,7 @@ type Options struct {
 	Environment   environmentOptions   `group:"Environment Options"`
 	Logging       loggingOptions       `group:"Logging Options"`
 	TLS           tlsOptions           `group:"TLS Options"`
-	User          userOptions          `group:"User Options"`
+	UserProvider  userProviderOptions  `group:"User Provider Options"`
 }
 
 var (
