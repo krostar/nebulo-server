@@ -3,7 +3,6 @@ package middleware
 import (
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/krostar/nebulo/router/httperror"
 	"github.com/krostar/nebulo/user"
@@ -30,13 +29,7 @@ func Auth() echo.MiddlewareFunc {
 						return httperror.HTTPUnauthorizedError(user.ErrNotFound)
 					}
 
-					now := time.Now()
-					if u.LoginFirst.IsZero() {
-						u.LoginFirst = now
-					}
-					u.LoginLast = now
-					// TODO: too hard to full save the user like this
-					if err = up.P.Save(u); err != nil {
+					if err = up.P.Login(u); err != nil {
 						return httperror.HTTPInternalServerError(fmt.Errorf("user save failed: %v", err))
 					}
 					c.Set("user", u)

@@ -15,12 +15,6 @@
 			"revisionTime": "2017-02-12T22:02:46Z"
 		},
 		{
-			"checksumSHA1": "xXjxKqs3ECyWO5zjIVb2qgj9rcU=",
-			"path": "github.com/jmoiron/sqlx/reflectx",
-			"revision": "8ed836a8adb659e8492bcaa49e0880bb84075fe2",
-			"revisionTime": "2017-03-08T17:16:22Z"
-		},
-		{
 			"checksumSHA1": "RM1ukPZ4NGyHoKLC/vCcKk8DE5c=",
 			"path": "github.com/labstack/echo",
 			"revision": "0d23a63a965a0f709657a4515778968542890552",

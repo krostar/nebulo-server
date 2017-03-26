@@ -43,7 +43,7 @@ func formatLog(verbosity Verbose, prefix string, callerSkip int, format string, 
 	caller := ""
 
 	// we want to know which file/line throw this function call
-	if verbosity == DEBUG || verbosity == ERROR || verbosity == CRITICAL {
+	if callerSkip > 0 && (verbosity == DEBUG || verbosity == ERROR || verbosity == CRITICAL) {
 		if pc, callerFile, callerLineNumber, ok := runtime.Caller(callerSkip); ok {
 			details := runtime.FuncForPC(pc)
 			callerName := details.Name()

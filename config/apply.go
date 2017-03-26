@@ -82,6 +82,6 @@ func applyProviderConfiguration() (p up.Provider, err error) {
 		return nil, errors.New("unknown user provider")
 	}
 
-	log.Debugf("Using %s to provide user", Config.UserProvider.Type)
+	log.Infof("Using %s to provide user", Config.UserProvider.Type)
 	return p, nil
 }

@@ -7,9 +7,19 @@ import (
 	"github.com/krostar/nebulo/user"
 )
 
+var (
+	// SQLLogger is used to log every sql action
+	SQLLogger *ORPLogger
+)
+
+func init() {
+	SQLLogger = new(ORPLogger)
+}
+
 // Provider represent the way we can interact with a provider
 // to get informations about a user
 type Provider interface {
+	Login(u *user.User) (err error)
 	Register(userToAdd *user.User) (u *user.User, err error)
 	FindByPublicKey(publicKeyAlgo x509.PublicKeyAlgorithm, publicKey interface{}) (u *user.User, err error)
 	FindByID(ID int) (u *user.User, err error)

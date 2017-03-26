@@ -19,9 +19,9 @@ var (
 type User struct {
 	ID                 int                     `json:"-" db:"id, primarykey, autoincrement"`
 	PublicKeyDER       []byte                  `json:"key_public_der" db:"key_public_der"`
-	PublicKeyAlgorithm x509.PublicKeyAlgorithm `json:"key_public_algo" db:"key_public_algo, size:50"`
+	PublicKeyAlgorithm x509.PublicKeyAlgorithm `json:"key_public_algo" db:"key_public_algo"`
 	FingerPrint        string                  `json:"key_fingerprint" db:"key_fingerprint"`
-	DisplayName        string                  `json:"display_name" db:"display_name, size:50"`
+	DisplayName        string                  `json:"display_name" db:"display_name, size:42"`
 	SignUp             time.Time               `json:"signup" db:"signup"`
 	LoginFirst         time.Time               `json:"login_first" db:"login_first"`
 	LoginLast          time.Time               `json:"login_last" db:"login_last"`
