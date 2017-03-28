@@ -17,12 +17,12 @@ var (
 
 // User is the modelisation of an user
 type User struct {
-	ID                 int                     `json:"-" db:"id, primarykey, autoincrement"`
-	PublicKeyDER       []byte                  `json:"key_public_der" db:"key_public_der"`
-	PublicKeyAlgorithm x509.PublicKeyAlgorithm `json:"key_public_algo" db:"key_public_algo"`
-	FingerPrint        string                  `json:"key_fingerprint" db:"key_fingerprint"`
-	DisplayName        string                  `json:"display_name" db:"display_name, size:42"`
-	SignUp             time.Time               `json:"signup" db:"signup"`
+	ID                 int                     `json:"-" db:"id, primarykey, autoincrement, notnull"`
+	PublicKeyDER       []byte                  `json:"-" db:"key_public_der, notnull"`
+	PublicKeyAlgorithm x509.PublicKeyAlgorithm `json:"-" db:"key_public_algo, notnull"`
+	FingerPrint        string                  `json:"key_fingerprint" db:"key_fingerprint, size:51 notnull"`
+	DisplayName        string                  `json:"display_name" db:"display_name, size:42" validator-update:"string=length:max|42"`
+	SignUp             time.Time               `json:"signup" db:"signup, notnull"`
 	LoginFirst         time.Time               `json:"login_first" db:"login_first"`
 	LoginLast          time.Time               `json:"login_last" db:"login_last"`
 }

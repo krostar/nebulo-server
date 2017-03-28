@@ -35,7 +35,7 @@ func main() {
 		env.EnvironmentConfig[env.Environment(config.Config.Environment.Type)],
 		config.Config.TLS.CertFile,
 		config.Config.TLS.KeyFile,
-		config.Config.TLS.ClientsCACertFile,
+		config.Config.TLS.ClientsCA.CertFile,
 	); err != nil {
 		log.Criticalf("router failed: %v", err)
 		os.Exit(returncode.ROUTERFAILED)

@@ -8,8 +8,8 @@ import (
 )
 
 type basicOptions struct {
-	Help             bool   `short:"h" long:"help" description:"show this help message" no-ini:"true" validate:"-"`
-	ConfigGeneration string `long:"config-gen" description:"generate a configuration file for the actual configuration to the specified file and quit" no-ini:"true" validate:"-"`
+	Help             bool `short:"h" long:"help" description:"show this help message" no-ini:"true" validate:"-"`
+	ConfigGeneration bool `long:"config-gen" description:"generate a configuration for the actual parameter, print on standart output and quit" no-ini:"true" validate:"-"`
 }
 
 type configurationOptions struct {
@@ -29,18 +29,26 @@ type loggingOptions struct {
 }
 
 type tlsOptions struct {
-	CertFile             string `long:"tls-crt-file" description:"tls certificate file used to encrypt communication - this parameter is required" validate:"file=readable"`
-	KeyFile              string `long:"tls-key-file" description:"tls certificate key used to encrypt communication - this parameter is required" validate:"file=readable"`
-	ClientsCACertFile    string `long:"tls-clients-ca-cert-file" description:"tls certification authority used to validate clients certificate for the tls mutual authentication - this parameter is required" validate:"file=readable"`
-	ClientsCAKeyFile     string `long:"tls-clients-ca-key-file" description:"tls certification authority key file used to validate clients certificate for the tls mutual authentication - this parameter is required" validate:"file=readable"`
-	ClientsCAKeyPassword string `long:"tls-clients-ca-key-pwd" description:"tls certification authority key password used to validate clients certificate for the tls mutual authentication" default-mask:"no password"`
+	CertFile  string       `long:"tls-crt-file" description:"tls certificate file used to encrypt communication - this parameter is required" validate:"file=readable"`
+	KeyFile   string       `long:"tls-key-file" description:"tls certificate key used to encrypt communication - this parameter is required" validate:"file=readable"`
+	ClientsCA tlsClientsCA `group:"Clients CA"`
+}
+
+type tlsClientsCA struct {
+	CertFile    string   `long:"tls-clients-ca-cert-file" description:"tls certification authority used to validate clients certificate for the tls mutual authentication - this parameter is required" validate:"file=readable"`
+	KeyFile     string   `long:"tls-clients-ca-key-file" description:"tls certification authority key file used to validate clients certificate for the tls mutual authentication - this parameter is required" validate:"file=readable"`
+	KeyPassword string   `long:"tls-clients-ca-key-pwd" description:"tls certification authority key password used to validate clients certificate for the tls mutual authentication" default-mask:"no password"`
+	OCSPServers []string `long:"tls-clients-ca-ocsp" description:"tls certification authority ocsp server list used to validate clients certificate for the tls mutual authentication"`
 }
 
 type userProviderOptions struct {
-	Type                    string `long:"user-provider" choice:"sqlite" description:"provider to use to get users informations" validate:"regexp=^(sqlite)?$"`
-	CreateTablesIfNotExists bool   `long:"user-provider-createtable" description:"create tables if not exists" default-mask:"false" validate:"-"`
-	DropTablesIfExists      bool   `long:"user-provider-droptables" description:"drop tables if exists" default-mask:"false" validate:"-"`
-	SQLiteFile              string `long:"user-provider-sqlite-file" description:"provider sqlite filepath where users informations are stored" validate:"-"`
+	Type string `long:"user-provider" choice:"sqlite" description:"provider to use to get users informations - this parameter is required" validate:"regexp=^(sqlite)?$"`
+
+	CreateTablesIfNotExists bool `long:"user-provider-createtable" description:"create tables if not exists" default-mask:"false" validate:"-"`
+	DropTablesIfExists      bool `long:"user-provider-droptables" description:"drop tables if exists" default-mask:"false" validate:"-"`
+	SQLCreateQuery          bool `long:"user-provider-createquery" description:"print the sql create query and quit" no-ini:"true" validate:"-"`
+
+	SQLiteFile string `long:"user-provider-sqlite-file" description:"provider sqlite filepath where users informations are stored" validate:"-"`
 }
 
 // Options list all the available options of the program, with details useful for help command and validators to help validations of fields
@@ -68,14 +76,4 @@ func init() {
 		"/etc/nebulo/config.ini",
 		"./config.ini",
 	}
-}
-
-// FromCommandLine load options from program arguments
-func FromCommandLine(args []string, conf *Options) (remaining []string, err error) {
-	return parser.ParseArgs(args)
-}
-
-// FromINIFile load options from configuration file
-func FromINIFile(filename string, conf *Options) (err error) {
-	return flags.IniParse(filename, conf)
 }

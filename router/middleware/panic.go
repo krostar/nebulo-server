@@ -39,7 +39,7 @@ func Recover() echo.MiddlewareFunc {
 					// useful informations can be shown for debug pupose
 					if c.Echo().Debug {
 						printableStack = "\n" + string(stack[:length])
-						errHE = httperror.HTTPInternalServerError(err)
+						errHE = httperror.HTTPInternalServerError(fmt.Errorf("panic recover: %v", err))
 					} else {
 						printableStack = base64.StdEncoding.EncodeToString(stack[:length])
 						errHE = httperror.HTTPInternalServerError(nil)

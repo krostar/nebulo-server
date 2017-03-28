@@ -87,10 +87,10 @@ func setupRoutes() {
 
 	// domain/user/...
 	user := router.Group("/user")
-	user.GET("/", handler.UserInfos, puMdw["auth"]) //user profile infos
-	user.POST("/", handler.UserCreate)              //create user profile
-	// user.PUT("/:user", handler.UserEdit, mdwAuth)      //edit user profile
-	// user.DELETE("/:user", handler.UserDelete, mdwAuth) //edit user profile
+	user.GET("/", handler.UserInfos, puMdw["auth"])     //user profile infos
+	user.POST("/", handler.UserCreate)                  //create user profile
+	user.PUT("/", handler.UserEdit, puMdw["auth"])      //edit user profile
+	user.DELETE("/", handler.UserDelete, puMdw["auth"]) //delete user profile
 	//
 	// // domain/chans
 	// router.GET("/chans", handler.ChansList, mdwAuth) //list all channels

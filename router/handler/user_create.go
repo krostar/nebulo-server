@@ -2,10 +2,11 @@ package handler
 
 import (
 	"bytes"
+	"crypto"
 	"crypto/rand"
-	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"io"
 	"math/big"
@@ -21,16 +22,15 @@ import (
 	"github.com/labstack/echo"
 )
 
-// UserCreate handle the route /user/.
+// UserCreate handle the route POST /user/.
 // Return a CRT generated from the CRS submitted and the CA.
 /**
  * @api {post} /user/ Register an account
  * @apiDescription Create a user and allow him to connect to restricted areas of the API
- * @apiName Register
+ * @apiName User - Create profile
  * @apiGroup User
  *
  * @apiExample {curl} Usage example
- *		$>curl "http://127.0.0.1:17241/version"
  *		$>curl -X POST --cacert ca.crt -v "https://api.nebulo.io/user/" --data-binary "@user.csr"
  *
  * @apiSuccess (Success) {nothing} 201 Created
@@ -48,9 +48,9 @@ import (
  * @apiError (Errors 4XX) {json} 409 Conflict: user already exist
  * @apiError (Errors 5XX) {json} 500 Internal server error: server failed to handle the request
 */
-func UserCreate(c echo.Context) error {
+func UserCreate(c echo.Context) (err error) {
 
-	clientCSR, caCRT, caPrivateKey, err := loadCertificate(c.Request().Header.Get("Content-Length"), c.Request().Body)
+	clientCSR, caCert, caPrivateKey, err := loadCertificate(c.Request().Body, c.Request().Header.Get("Content-Length"))
 	if err != nil {
 		return err
 	}
@@ -64,21 +64,23 @@ func UserCreate(c echo.Context) error {
 
 	// create client certificate template
 	clientCRTTemplate := x509.Certificate{
-		Signature:          clientCSR.Signature,
-		SignatureAlgorithm: clientCSR.SignatureAlgorithm,
-		PublicKeyAlgorithm: clientCSR.PublicKeyAlgorithm,
-		PublicKey:          clientCSR.PublicKey,
-		SerialNumber:       big.NewInt(2),
-		Issuer:             caCRT.Subject,
-		Subject:            clientCSR.Subject,
-		NotBefore:          time.Now(),
-		NotAfter:           time.Now().Add(7 * time.Hour * 24),
-		KeyUsage:           x509.KeyUsageDigitalSignature,
-		ExtKeyUsage:        []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
+		Signature:             clientCSR.Signature,
+		SignatureAlgorithm:    clientCSR.SignatureAlgorithm,
+		PublicKeyAlgorithm:    clientCSR.PublicKeyAlgorithm,
+		PublicKey:             clientCSR.PublicKey,
+		SerialNumber:          big.NewInt(2),
+		Issuer:                caCert.Subject,
+		Subject:               clientCSR.Subject,
+		NotBefore:             time.Now(),
+		NotAfter:              time.Now().Add(7 * time.Hour * 24),
+		KeyUsage:              x509.KeyUsageDigitalSignature,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
+		OCSPServer:            config.Config.TLS.ClientsCA.OCSPServers,
+		IssuingCertificateURL: caCert.IssuingCertificateURL,
 	}
 
 	// create client certificate from template and CA public key
-	clientCRTRaw, err := x509.CreateCertificate(rand.Reader, &clientCRTTemplate, caCRT, clientCSR.PublicKey, caPrivateKey)
+	clientCRTRaw, err := x509.CreateCertificate(rand.Reader, &clientCRTTemplate, caCert, clientCSR.PublicKey, caPrivateKey)
 	if err != nil {
 		return httperror.HTTPInternalServerError(fmt.Errorf("unable to create certificate: %v", err))
 	}
@@ -92,7 +94,7 @@ func UserCreate(c echo.Context) error {
 		PublicKeyAlgorithm: clientCSR.PublicKeyAlgorithm,
 		FingerPrint:        cert.FingerprintSHA256(storablePublicKey),
 	}
-	if _, err = up.P.Register(newUser); err != nil {
+	if _, err = up.P.Create(newUser); err != nil {
 		return httperror.HTTPInternalServerError(fmt.Errorf("unable to register user in user provider: %v", err))
 	}
 
@@ -107,31 +109,34 @@ func UserCreate(c echo.Context) error {
 	return nil
 }
 
-func loadCertificate(contentLengthHeader string, requestBody io.Reader) (clientCSR *x509.CertificateRequest, caCRT *x509.Certificate, caPrivateKey *rsa.PrivateKey, err error) {
-	// get client certificate request from body
+// get client certificate request from body
+func loadCertificate(requestBody io.Reader, contentLengthHeader string) (clientCSR *x509.CertificateRequest, caCert *x509.Certificate, caPrivateKey crypto.Signer, err error) {
 	bodyLength, err := strconv.ParseInt(contentLengthHeader, 10, 64)
 	if err != nil {
 		return nil, nil, nil, httperror.HTTPBadRequestError(fmt.Errorf("bad content-length: %v", err))
 	}
+	if bodyLength < 210 {
+		return nil, nil, nil, httperror.HTTPBadRequestError(errors.New("no csr submitted"))
+	}
+
 	rawBodyReader := bytes.NewBuffer(make([]byte, 0, bodyLength))
 	_, err = rawBodyReader.ReadFrom(requestBody)
 	if err != nil {
 		return nil, nil, nil, httperror.HTTPBadRequestError(fmt.Errorf("unable to read from raw body: %v", err))
 	}
-	rawBody := rawBodyReader.Bytes()
-	clientCSR, err = cert.CSRFromPEM(rawBody, nil)
+	clientCSR, err = cert.ParseCSR(rawBodyReader.Bytes())
 	if err != nil {
-		return nil, nil, nil, httperror.HTTPBadRequestError(fmt.Errorf("unable to convert PEM certificate to certificate request: %v", err))
+		return nil, nil, nil, httperror.HTTPBadRequestError(fmt.Errorf("unable to convert raw body to certificate request: %v", err))
 	}
 
 	// load certificate authority
-	caCRT, caPrivateKey, err = cert.CAFromFiles(
-		config.Config.TLS.ClientsCACertFile,
-		config.Config.TLS.ClientsCAKeyFile,
-		[]byte(config.Config.TLS.ClientsCAKeyPassword),
+	caCert, caPrivateKey, err = cert.CAFromFiles(
+		config.Config.TLS.ClientsCA.CertFile,
+		config.Config.TLS.ClientsCA.KeyFile,
+		[]byte(config.Config.TLS.ClientsCA.KeyPassword),
 	)
 	if err != nil {
 		return nil, nil, nil, httperror.HTTPInternalServerError(fmt.Errorf("unable to fetch certificate authority files: %v", err))
 	}
-	return clientCSR, caCRT, caPrivateKey, nil
+	return clientCSR, caCert, caPrivateKey, nil
 }

@@ -28,7 +28,7 @@ func Load() (err error) {
 	}
 
 	// try to override configuration via the command line
-	if _, err = FromCommandLine(os.Args, Config); err != nil {
+	if _, err = parser.ParseArgs(os.Args); err != nil {
 		return fmt.Errorf("configuration from command line failed to load: %v", err)
 	}
 	if err = loadSuccessfully("command line"); err != nil {
@@ -43,7 +43,7 @@ func Load() (err error) {
 
 func loadFromCommandLine() (err error) {
 	// looking for help, config-gen or config-not-load-default and by command line syntax
-	remainingArgs, err := FromCommandLine(os.Args, Config)
+	remainingArgs, err := parser.ParseArgs(os.Args)
 	if err != nil {
 		return fmt.Errorf("Error while parsing configuration from command line: %s", err)
 	}
@@ -60,7 +60,7 @@ func loadFromCommandLine() (err error) {
 }
 
 func loadFromFile(filename string) (err error) {
-	if err = FromINIFile(filename, Config); err != nil {
+	if err = flags.IniParse(filename, Config); err != nil {
 		if os.IsNotExist(err) {
 			log.Warningf("Error while parsing configuration from %s: does that file exist ?", filename)
 		} else {
@@ -80,6 +80,11 @@ func loadFromFile(filename string) (err error) {
 func loadSuccessfully(from string) (err error) {
 	if from != "" {
 		log.Infof("Configuration successfully loaded from %s", from)
+	} else {
+		// early apply logging configuration to avoid printing unwanted output
+		if err = applyLoggingConfiguration(); err != nil {
+			return fmt.Errorf("apply logging configuration failed: %v", err)
+		}
 	}
 
 	// if the user need help, the program has to quit
@@ -91,11 +96,9 @@ func loadSuccessfully(from string) (err error) {
 	}
 
 	// this settings is used to have a template of all possible configuration, the program has to quit
-	if Config.Basic.ConfigGeneration != "" {
-		log.Infoln("Configuration generation parameter detected, program will generate configuration into default file and quit")
-		if err := flags.NewIniParser(parser).WriteFile(Config.Basic.ConfigGeneration, flags.IniIncludeDefaults|flags.IniCommentDefaults|flags.IniIncludeComments); err != nil {
-			return fmt.Errorf("flag parser creation failed: %v", err)
-		}
+	if Config.Basic.ConfigGeneration {
+		log.Infoln("Configuration generation parameter detected, program will output configuration and quit")
+		flags.NewIniParser(parser).Write(os.Stdout, flags.IniIncludeDefaults|flags.IniCommentDefaults|flags.IniIncludeComments)
 		os.Exit(returncode.CONFIGGEN)
 	}
 
@@ -108,7 +111,7 @@ func loadSuccessfully(from string) (err error) {
 		Config.Configuration.File = ""
 		log.Warningln("The parameter -c or --config-file is detected, the specified file will override the current configuration")
 
-		if err := FromINIFile(confFile, Config); err != nil {
+		if err := flags.IniParse(confFile, Config); err != nil {
 			log.Warningln("Error while parsing configuration from specified configuration file "+confFile, err)
 			return fmt.Errorf("unable to load configuration from file %s: %v", confFile, err)
 		}

@@ -70,7 +70,7 @@ build: vendor $(BINARY_NAME)
 # Generate configuration file
 config: $(BINARY_NAME)
 	$Q echo -e '$(COLOR_PRINT)Generating $(CONFIGURATION_FILE)...$(COLOR_RESET)'
-	$Q [ "$(shell $(DIR_BUILD)/bin/$(BINARY_NAME) --config-dont-load-default --config-gen=$(CONFIGURATION_FILE) 2>&1 > /dev/null || echo $$? && false)" = "102" ]
+	$Q [ "$(shell $(DIR_BUILD)/bin/$(BINARY_NAME) --config-dont-load-default --config-gen -v quiet > $(CONFIGURATION_FILE) || echo $$? && false)" = "102" ]
 	$Q echo -e '$(COLOR_SUCCESS)Compilation done without errors$(COLOR_RESET)'
 
 # Compile for current os/arch and run binary

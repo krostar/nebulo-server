@@ -7,13 +7,13 @@ import (
 	"github.com/labstack/echo"
 )
 
-// UserInfos handle the route /user/.
+// UserInfos handle the route GET /user/.
 // Return the whole profile of the logged user
 /**
- * @api {get} /user User profile
+ * @api {get} /user Get profile infos
  * @apiDescription Return all the informations are stored about the users
- * @apiName User
- * @apiGroup Other
+ * @apiName User - Get profile infos
+ * @apiGroup User
  *
  * @apiExample {curl} Usage example
  *		$>curl -X GET -v --cert bob.crt --key bob.key "https://api.nebulo.io/user/"
@@ -32,9 +32,8 @@ import (
  * @apiError (Errors 4XX) {json} 401 Unauthorized: missing client certificate
  * @apiError (Errors 4XX) {json} 404 Not found: user not found
  * @apiError (Errors 5XX) {json} 500 Internal server error: server failed to handle the request
- *
  */
-func UserInfos(c echo.Context) error {
+func UserInfos(c echo.Context) (err error) {
 	u, err := GetLoggedUser(c.Get("user"))
 	if err != nil {
 		return httperror.UserNotFound()

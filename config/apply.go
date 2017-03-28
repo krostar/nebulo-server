@@ -3,9 +3,11 @@ package config
 import (
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/krostar/nebulo/env"
 	"github.com/krostar/nebulo/log"
+	"github.com/krostar/nebulo/returncode"
 	up "github.com/krostar/nebulo/user/provider"
 	upLite "github.com/krostar/nebulo/user/provider/sqlite"
 	validator "gopkg.in/validator.v2"
@@ -18,41 +20,37 @@ func applyConfiguration() (err error) {
 	}
 
 	// apply environment config
-	_, err = applyEnvironmentConfiguration()
+	err = applyEnvironmentConfiguration()
 	if err != nil {
 		return fmt.Errorf("apply provider configuration failed: %v", err)
 	}
 
 	// apply log-related config
-	err = applyLoggingConfiguration()
-	if err != nil {
+	if err = applyLoggingConfiguration(); err != nil {
 		return fmt.Errorf("apply logging configuration failed: %v", err)
 	}
 
 	// apply provider-related config
-	userProvider, err := applyProviderConfiguration()
+	err = applyProviderConfiguration()
 	if err != nil {
 		return fmt.Errorf("apply provider configuration failed: %v", err)
-	}
-	if err = up.Use(userProvider); err != nil {
-		return fmt.Errorf("unable to set user provider: %v", err)
 	}
 
 	return nil
 }
 
-func applyEnvironmentConfiguration() (environment *env.Config, err error) {
+func applyEnvironmentConfiguration() (err error) {
 	if Config.Environment.Type != "" {
-		environment = env.EnvironmentConfig[env.Environment(Config.Environment.Type)]
+		environment := env.EnvironmentConfig[env.Environment(Config.Environment.Type)]
 		if Config.Environment.Address != "" {
 			environment.Address = Config.Environment.Address
 		}
 		if Config.Environment.Port > 0 {
 			environment.Port = Config.Environment.Port
 		}
-		return environment, nil
+		return nil
 	}
-	return nil, errors.New("unknown environment")
+	return errors.New("unknown environment")
 }
 
 func applyLoggingConfiguration() (err error) {
@@ -67,21 +65,37 @@ func applyLoggingConfiguration() (err error) {
 	return nil
 }
 
-func applyProviderConfiguration() (p up.Provider, err error) {
+func applyProviderConfiguration() (err error) {
+	var uP up.Provider
+
 	switch Config.UserProvider.Type {
 	case "sqlite":
-		p, err = upLite.NewFromConfig(&upLite.Config{
+		uP, err = upLite.NewFromConfig(&upLite.Config{
 			Filepath:                Config.UserProvider.SQLiteFile,
 			CreateTablesIfNotExists: Config.UserProvider.CreateTablesIfNotExists,
 			DropTablesIfExists:      Config.UserProvider.DropTablesIfExists,
 		})
 		if err != nil {
-			return nil, fmt.Errorf("user-provider-file creation failed: %v", err)
+			return fmt.Errorf("user-provider-sqlite initialization failed: %v", err)
 		}
 	default:
-		return nil, errors.New("unknown user provider")
+		return errors.New("unknown user provider")
 	}
 
+	if err = up.Use(uP); err != nil {
+		return fmt.Errorf("unable to set user provider: %v", err)
+	}
 	log.Infof("Using %s to provide user", Config.UserProvider.Type)
-	return p, nil
+
+	if Config.UserProvider.SQLCreateQuery {
+		log.Infoln("User SQL creation query parameter detected, program will output query and quit")
+		creationQuery, err := up.P.SQLCreateQuery()
+		if err != nil {
+			return fmt.Errorf("unable to get sql user provider creation query: %v", err)
+		}
+		fmt.Println(creationQuery)
+		os.Exit(returncode.SQLGEN)
+	}
+
+	return nil
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/krostar/nebulo/router/httperror"
+	"github.com/krostar/nebulo/tools/cert"
 	"github.com/krostar/nebulo/user"
 	up "github.com/krostar/nebulo/user/provider"
 	"github.com/labstack/echo"
@@ -22,6 +23,12 @@ func Auth() echo.MiddlewareFunc {
 			if c.IsTLS() {
 				if len(c.Request().TLS.PeerCertificates) == 1 {
 					userCert := c.Request().TLS.PeerCertificates[0]
+
+					if revoked, err := cert.VerifyCertificate(userCert); err != nil {
+						return httperror.HTTPUnauthorizedError(fmt.Errorf("unable to verify certificate: %v", err))
+					} else if revoked {
+						return httperror.HTTPUnauthorizedError(errors.New("certificate is revoked"))
+					}
 
 					c.Set("userCert", userCert)
 					u, err := up.P.FindByPublicKey(userCert.PublicKeyAlgorithm, userCert.PublicKey)

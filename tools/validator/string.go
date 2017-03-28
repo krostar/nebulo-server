@@ -55,7 +55,7 @@ func checkStringNonEmpty(str string, param string) (err error) {
 
 func checkStringLength(str string, param string) (err error) {
 	comparaisonType := map[string]func(real int, wanted int) error{
-		"least": func(real int, wanted int) error {
+		"min": func(real int, wanted int) error {
 			if real >= wanted {
 				return nil
 			}
@@ -67,7 +67,7 @@ func checkStringLength(str string, param string) (err error) {
 			}
 			return fmt.Errorf("value should have %d  caracters but has %d", wanted, real)
 		},
-		"greater": func(real int, wanted int) error {
+		"max": func(real int, wanted int) error {
 			if real <= wanted {
 				return nil
 			}

@@ -170,22 +170,22 @@ func TestStringOthers(t *testing.T) {
 	if err := String("bad param", "length|a"); err == nil {
 		t.Fatal("string should not pass length test")
 	}
-	if err := String("a", "length:least|3"); err == nil {
+	if err := String("a", "length:min|3"); err == nil {
 		t.Fatal("string should not pass length test")
 	}
 	if err := String("a", "length:equal|3"); err == nil {
 		t.Fatal("string should not pass length test")
 	}
-	if err := String("aaaa", "length:greater|3"); err == nil {
+	if err := String("aaaa", "length:max|3"); err == nil {
 		t.Fatal("string should not pass length test")
 	}
-	if err := String("aaa", "length:least|3"); err != nil {
+	if err := String("aaa", "length:min|3"); err != nil {
 		t.Fatal(err)
 	}
 	if err := String("aaa", "length:equal|3"); err != nil {
 		t.Fatal(err)
 	}
-	if err := String("aaa", "length:greater|3"); err != nil {
+	if err := String("aaa", "length:max|3"); err != nil {
 		t.Fatal(err)
 	}
 }

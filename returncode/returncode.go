@@ -15,6 +15,10 @@ const HELP = 101
 // when user specify the config generation (--config-gen) flag
 const CONFIGGEN = 102
 
+// SQLGEN is the exit code triggered
+// when user specify the sql create query (--*-provider-createquery) flag
+const SQLGEN = 103
+
 // ROUTERFAILED is the exit code to use
 // when the router failed to start, or stopped brutally
 const ROUTERFAILED = 110
