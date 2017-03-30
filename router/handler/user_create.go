@@ -64,19 +64,17 @@ func UserCreate(c echo.Context) (err error) {
 
 	// create client certificate template
 	clientCRTTemplate := x509.Certificate{
-		Signature:             clientCSR.Signature,
-		SignatureAlgorithm:    clientCSR.SignatureAlgorithm,
-		PublicKeyAlgorithm:    clientCSR.PublicKeyAlgorithm,
-		PublicKey:             clientCSR.PublicKey,
-		SerialNumber:          big.NewInt(2),
-		Issuer:                caCert.Subject,
-		Subject:               clientCSR.Subject,
-		NotBefore:             time.Now(),
-		NotAfter:              time.Now().Add(7 * time.Hour * 24),
-		KeyUsage:              x509.KeyUsageDigitalSignature,
-		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
-		OCSPServer:            config.Config.TLS.ClientsCA.OCSPServers,
-		IssuingCertificateURL: caCert.IssuingCertificateURL,
+		Signature:          clientCSR.Signature,
+		SignatureAlgorithm: clientCSR.SignatureAlgorithm,
+		PublicKeyAlgorithm: clientCSR.PublicKeyAlgorithm,
+		PublicKey:          clientCSR.PublicKey,
+		SerialNumber:       big.NewInt(2),
+		Issuer:             caCert.Subject,
+		Subject:            clientCSR.Subject,
+		NotBefore:          time.Now(),
+		NotAfter:           time.Now().Add(7 * time.Hour * 24),
+		KeyUsage:           x509.KeyUsageDigitalSignature,
+		ExtKeyUsage:        []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
 	}
 
 	// create client certificate from template and CA public key

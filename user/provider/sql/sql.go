@@ -124,11 +124,3 @@ func (p *Provider) Update(u *user.User, fields map[string]interface{}) (err erro
 	}
 	return nil
 }
-
-// Save update every informations about a user
-func (p *Provider) Save(u *user.User) (err error) {
-	if _, err = p.DBMap.Update(u); err != nil {
-		return fmt.Errorf("unable to save user: %v", err)
-	}
-	return nil
-}

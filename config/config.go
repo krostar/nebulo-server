@@ -35,20 +35,19 @@ type tlsOptions struct {
 }
 
 type tlsClientsCA struct {
-	CertFile    string   `long:"tls-clients-ca-cert-file" description:"tls certification authority used to validate clients certificate for the tls mutual authentication - this parameter is required" validate:"file=readable"`
-	KeyFile     string   `long:"tls-clients-ca-key-file" description:"tls certification authority key file used to validate clients certificate for the tls mutual authentication - this parameter is required" validate:"file=readable"`
-	KeyPassword string   `long:"tls-clients-ca-key-pwd" description:"tls certification authority key password used to validate clients certificate for the tls mutual authentication" default-mask:"no password"`
-	OCSPServers []string `long:"tls-clients-ca-ocsp" description:"tls certification authority ocsp server list used to validate clients certificate for the tls mutual authentication"`
+	CertFile    string `long:"tls-clients-ca-cert-file" description:"tls certification authority used to validate clients certificate for the tls mutual authentication - this parameter is required" validate:"file=readable"`
+	KeyFile     string `long:"tls-clients-ca-key-file" description:"tls certification authority key file used to validate clients certificate for the tls mutual authentication - this parameter is required" validate:"file=readable"`
+	KeyPassword string `long:"tls-clients-ca-key-pwd" description:"tls certification authority key password used to validate clients certificate for the tls mutual authentication" default-mask:"no password"`
 }
 
-type userProviderOptions struct {
-	Type string `long:"user-provider" choice:"sqlite" description:"provider to use to get users informations - this parameter is required" validate:"regexp=^(sqlite)?$"`
+type sqlOptions struct {
+	Type string `long:"sql-type" choice:"sqlite" description:"provider to use to get users informations - this parameter is required" validate:"regexp=^(sqlite)?$"`
 
-	CreateTablesIfNotExists bool `long:"user-provider-createtable" description:"create tables if not exists" default-mask:"false" validate:"-"`
-	DropTablesIfExists      bool `long:"user-provider-droptables" description:"drop tables if exists" default-mask:"false" validate:"-"`
-	SQLCreateQuery          bool `long:"user-provider-createquery" description:"print the sql create query and quit" no-ini:"true" validate:"-"`
+	CreateTablesIfNotExists bool `long:"sql-createtables" description:"create tables if not exists" default-mask:"false" validate:"-"`
+	DropTablesIfExists      bool `long:"sql-droptables" description:"drop tables if exists" default-mask:"false" validate:"-"`
+	CreateQuery             bool `long:"sql-createqueries" description:"print the sql create queries and quit" no-ini:"true" validate:"-"`
 
-	SQLiteFile string `long:"user-provider-sqlite-file" description:"provider sqlite filepath where users informations are stored" validate:"-"`
+	SQLiteFile string `long:"sql-sqlite-file" description:"sqlite filepath where informations are stored" validate:"-"`
 }
 
 // Options list all the available options of the program, with details useful for help command and validators to help validations of fields
@@ -58,7 +57,7 @@ type Options struct {
 	Environment   environmentOptions   `group:"Environment Options"`
 	Logging       loggingOptions       `group:"Logging Options"`
 	TLS           tlsOptions           `group:"TLS Options"`
-	UserProvider  userProviderOptions  `group:"User Provider Options"`
+	SQL           sqlOptions           `group:"SQL Options"`
 }
 
 var (

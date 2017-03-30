@@ -25,7 +25,6 @@ type Provider interface {
 	FindByID(ID int) (u *user.User, err error)
 
 	Update(u *user.User, fields map[string]interface{}) (err error)
-	Save(u *user.User) (err error)
 }
 
 // P is the currently used provider

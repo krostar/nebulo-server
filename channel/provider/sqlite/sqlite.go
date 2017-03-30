@@ -8,9 +8,9 @@ import (
 	validator "gopkg.in/validator.v2"
 
 	"github.com/go-gorp/gorp"
+	"github.com/krostar/nebulo/channel/provider"
+	dp "github.com/krostar/nebulo/channel/provider/sql"
 	gp "github.com/krostar/nebulo/provider"
-	"github.com/krostar/nebulo/user/provider"
-	dp "github.com/krostar/nebulo/user/provider/sql"
 	_ "github.com/mattn/go-sqlite3" // driver for database communication
 )
 
@@ -40,7 +40,7 @@ func NewFromConfig(config interface{}) (p *Provider, err error) {
 		return nil, fmt.Errorf("unable to connect to sqlite database: %v", err)
 	}
 
-	p.DBMap, p.UserTableName, err = provider.InitializeDatabase(db, &gorp.SqliteDialect{}, sqliteConfig.DropTablesIfExists, sqliteConfig.CreateTablesIfNotExists)
+	p.DBMap, p.ChannelTableName, err = provider.InitializeDatabase(db, &gorp.SqliteDialect{}, sqliteConfig.DropTablesIfExists, sqliteConfig.CreateTablesIfNotExists)
 	if err != nil {
 		return nil, fmt.Errorf("unable to initialize sqlite database: %v", err)
 	}

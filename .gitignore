@@ -42,4 +42,4 @@ _testmain.go
 # useless dirs and files used in development
 /.tmp/
 /certs/
-/userprovider.sqlite
+/db.sqlite
