@@ -100,9 +100,11 @@ func applyUsersProviderConfiguration() (err error) {
 	case "sqlite":
 		// init users provider
 		uP, err = upSQLite.NewFromConfig(&gp.SQLiteConfig{
-			Filepath:                Config.SQL.SQLiteFile,
-			CreateTablesIfNotExists: Config.SQL.CreateTablesIfNotExists,
-			DropTablesIfExists:      Config.SQL.DropTablesIfExists,
+			Filepath: Config.SQL.SQLiteFile,
+			DefaultConfig: gp.DefaultConfig{
+				CreateTablesIfNotExists: Config.SQL.CreateTablesIfNotExists,
+				DropTablesIfExists:      Config.SQL.DropTablesIfExists,
+			},
 		})
 		if err != nil {
 			return fmt.Errorf("users provider sqlite initialization failed: %v", err)
@@ -126,9 +128,11 @@ func applyChannelsProviderConfiguration() (err error) {
 	case "sqlite":
 		// init users provider
 		cP, err = cpSQLite.NewFromConfig(&gp.SQLiteConfig{
-			Filepath:                Config.SQL.SQLiteFile,
-			CreateTablesIfNotExists: Config.SQL.CreateTablesIfNotExists,
-			DropTablesIfExists:      Config.SQL.DropTablesIfExists,
+			Filepath: Config.SQL.SQLiteFile,
+			DefaultConfig: gp.DefaultConfig{
+				CreateTablesIfNotExists: Config.SQL.CreateTablesIfNotExists,
+				DropTablesIfExists:      Config.SQL.DropTablesIfExists,
+			},
 		})
 		if err != nil {
 			return fmt.Errorf("channels provider sqlite initialization failed: %v", err)

@@ -40,7 +40,7 @@ func NewFromConfig(config interface{}) (p *Provider, err error) {
 		return nil, fmt.Errorf("unable to connect to sqlite database: %v", err)
 	}
 
-	p.DBMap, p.ChannelTableName, err = provider.InitializeDatabase(db, &gorp.SqliteDialect{}, sqliteConfig.DropTablesIfExists, sqliteConfig.CreateTablesIfNotExists)
+	p.DBMap, p.ChannelTableName, err = gp.InitializeDatabase(db, &gorp.SqliteDialect{}, sqliteConfig.DefaultConfig, provider.InitializeDatabase)
 	if err != nil {
 		return nil, fmt.Errorf("unable to initialize sqlite database: %v", err)
 	}
