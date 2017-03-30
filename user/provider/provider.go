@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-gorp/gorp"
 	"github.com/krostar/nebulo/log"
+	gp "github.com/krostar/nebulo/provider"
 	"github.com/krostar/nebulo/user"
 )
 
@@ -41,29 +42,31 @@ func Use(newProvider Provider) (err error) {
 }
 
 // InitializeDatabase define the user table properties
-func InitializeDatabase(db *sql.DB, dialect gorp.Dialect, dropTablesIfExists bool, createTablesIfNotExists bool) (dbmap *gorp.DbMap, err error) {
+func InitializeDatabase(db *sql.DB, dialect gorp.Dialect, dropTablesIfExists bool, createTablesIfNotExists bool) (dbmap *gorp.DbMap, userTableName string, err error) {
+	userTableName = "users"
+
 	dbmap = &gorp.DbMap{Db: db, Dialect: dialect}
 
-	userTable := dbmap.AddTableWithName(user.User{}, "users")
+	userTable := dbmap.AddTableWithName(user.User{}, userTableName)
 	userTable.SetUniqueTogether("key_public_der", "key_public_algo")
 	userTable.SetKeys(true, "ID")
 
 	if log.Verbosity == log.DEBUG {
-		dbmap.TraceOn("User Provider -", &ORPLogger{})
+		dbmap.TraceOn("User Provider -", &gp.ORPLogger{})
 	}
 
 	if dropTablesIfExists {
 		err = dbmap.DropTablesIfExists()
 		if err != nil {
-			return nil, fmt.Errorf("unable to drop tables: %v", err)
+			return nil, userTableName, fmt.Errorf("unable to drop tables: %v", err)
 		}
 	}
 
 	if createTablesIfNotExists {
 		err = dbmap.CreateTablesIfNotExists()
 		if err != nil {
-			return nil, fmt.Errorf("unable to create tables: %v", err)
+			return nil, userTableName, fmt.Errorf("unable to create tables: %v", err)
 		}
 	}
-	return dbmap, nil
+	return dbmap, userTableName, nil
 }

@@ -11,8 +11,8 @@ import (
 var (
 	// ErrNotFound is throw when an user is not found
 	ErrNotFound = errors.New("user not found")
-	// ErrUserNil is throw when an user is nil
-	ErrUserNil = errors.New("user is nil")
+	// ErrNil is throw when an user is nil
+	ErrNil = errors.New("user is nil")
 )
 
 // User is the modelisation of an user
@@ -30,7 +30,7 @@ type User struct {
 // Repr return an uniq representation of a given user
 func (u *User) Repr() (string, error) {
 	if u == nil {
-		return "", ErrUserNil
+		return "", ErrNil
 	}
 
 	userRepr := fmt.Sprintf("%s - %d", u.FingerPrint, u.ID)

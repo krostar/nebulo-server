@@ -75,12 +75,6 @@
 			"revisionTime": "2017-03-17T13:29:17Z"
 		},
 		{
-			"checksumSHA1": "UlBPMaKC4dO/9ge7wJfDtptVoVo=",
-			"path": "golang.org/x/crypto/ocsp",
-			"revision": "459e26527287adbc2adcc5d0d49abff9a5f315a7",
-			"revisionTime": "2017-03-17T13:29:17Z"
-		},
-		{
 			"checksumSHA1": "Y+HGqEkYM15ir+J93MEaHdyFy0c=",
 			"path": "golang.org/x/net/context",
 			"revision": "6c23252515492caf9b228a9d5cabcdbde29f7f82",
