@@ -25,7 +25,7 @@ _testmain.go
 *.prof
 
 ## nebulo-specific
-/config.ini
+/config.json
 
 # vendors
 /_tools/

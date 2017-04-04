@@ -9,7 +9,6 @@ import (
 	"net"
 	"strconv"
 
-	"github.com/krostar/nebulo/config"
 	"github.com/krostar/nebulo/env"
 	"github.com/krostar/nebulo/router/handler"
 	"github.com/krostar/nebulo/router/httperror"
@@ -29,7 +28,7 @@ func init() {
 }
 
 func setupRouter(environment *env.Config) {
-	if env.Environment(config.Config.Environment.Type) == env.DEV {
+	if environment.Type == env.DEV {
 		router.Debug = true
 	} else {
 		router.Debug = false

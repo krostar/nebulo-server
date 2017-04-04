@@ -1,0 +1,26 @@
+{
+    "global": {
+        "log": {
+            "verbose": "",
+            "file": ""
+        }
+    },
+    "run": {
+        "env": {
+            "type": ""
+        },
+        "tls": {
+            "cert": "",
+            "key": "",
+            "clients-ca": {
+                "cert": "",
+                "key": "",
+                "key-password": ""
+            }
+        },
+        "provider": {
+            "type": "",
+            "sqlite-file": ""
+        }
+    }
+}

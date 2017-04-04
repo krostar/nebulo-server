@@ -9,12 +9,6 @@
 			"revisionTime": "2017-02-07T17:32:28Z"
 		},
 		{
-			"checksumSHA1": "HyzJVpU83/duL9rjkQ4fGE0cw5Q=",
-			"path": "github.com/jessevdk/go-flags",
-			"revision": "460c7bb0abd6e927f2767cadc91aa6ef776a98b4",
-			"revisionTime": "2017-02-12T22:02:46Z"
-		},
-		{
 			"checksumSHA1": "RM1ukPZ4NGyHoKLC/vCcKk8DE5c=",
 			"path": "github.com/labstack/echo",
 			"revision": "0d23a63a965a0f709657a4515778968542890552",
@@ -91,6 +85,12 @@
 			"path": "golang.org/x/sys/unix",
 			"revision": "8fd966b47dbdd4faa03de0d06e3d733baeb9a1a9",
 			"revisionTime": "2016-04-10T19:02:41Z"
+		},
+		{
+			"checksumSHA1": "1Rx4tdcCywDRfdX4Tzn/7riP6Go=",
+			"path": "gopkg.in/urfave/cli.v2",
+			"revision": "04b2f4ff79cf1fd71e138bafc67df8bbdb5b81c2",
+			"revisionTime": "2017-02-15T05:18:00Z"
 		},
 		{
 			"checksumSHA1": "KSiX/PVkEX32Pv07aOSJfOzXWRM=",

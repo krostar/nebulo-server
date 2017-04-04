@@ -11,6 +11,9 @@ TEST_COVERAGE_MODE	?= count
 #	and remove terminal colors
 CI					?= 0
 
+
+ARGS				?= -c config.json run
+
 # Used only on function 'release', generate one binary per couple os/arch
 RELEASE_OS			?= linux darwin
 RELEASE_ARCH		?= 386 amd64
