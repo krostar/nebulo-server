@@ -11,9 +11,7 @@ import (
 // to get informations about a channel
 type Provider interface {
 	SQLCreateQuery() (sqlCreationQuery string, err error)
-
 	FindByID(ID int) (u *channel.Channel, err error)
-
 	Update(u *channel.Channel, fields map[string]interface{}) (err error)
 }
 

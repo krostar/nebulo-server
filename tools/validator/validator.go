@@ -47,18 +47,21 @@ func validate(v interface{}, checksToCall string, checksMapping checkMap) (err e
 			options = check[optionsIndex+1:]
 			check = check[:optionsIndex]
 		}
-		if checkDef, ok := checksMapping[check]; ok {
-
+		checkDef, ok := checksMapping[check]
+		if ok {
 			if err = checkDef.checkFct(toCheck, options); err != nil {
-				if checkDef.omitError {
-					return nil
-				}
-				return fmt.Errorf("validation check failed: %v", err)
+				err = fmt.Errorf("validation check failed: %v", err)
 			}
-
 		} else {
-			return fmt.Errorf("unable to find check named :'%s'", check)
+			err = fmt.Errorf("unable to find check named :'%s'", check)
 		}
+
+		if ok && err != nil && checkDef.omitError {
+			return nil
+		} else if err != nil {
+			return err
+		}
+
 	}
 
 	return nil

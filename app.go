@@ -149,12 +149,12 @@ func main() {
 						Usage:       "path to a file where the configuration will be writted",
 						DefaultText: "standart output",
 					},
-				}, Before: beforeCommand,
+				}, Before: beforeEveryCommand,
 				Action: commandConfigGen,
 			}, &cli.Command{
 				Name:   "version",
 				Usage:  "display the version",
-				Before: beforeCommand,
+				Before: beforeEveryCommand,
 				Action: commandVersion,
 			},
 		},
@@ -165,7 +165,7 @@ func main() {
 	}
 }
 
-func beforeCommand(c *cli.Context) (err error) {
+func beforeEveryCommand(c *cli.Context) (err error) {
 	if c.NArg() != 0 {
 		return fmt.Errorf("unknown remaining args: %q", strings.Join(c.Args().Slice(), " "))
 	}
@@ -173,14 +173,14 @@ func beforeCommand(c *cli.Context) (err error) {
 }
 
 func beforeCommandWhoNeedMergeConfiguration(c *cli.Context) (err error) {
-	if err = beforeCommand(c); err != nil {
+	if err = beforeEveryCommand(c); err != nil {
 		return err
 	}
 	config.Merge()
 	if err = config.Apply(); err != nil {
 		return fmt.Errorf("configuration application failed: %v", err)
 	}
-	log.Logf(log.DEBUG, strings.ToUpper(log.VerboseReverseMapping[log.DEBUG]), -1, "Configuration merged, validated and applied: %v", config.Config)
+	log.Logf(log.DEBUG, -1, "Configuration merged, validated and applied: %v", config.Config)
 	return nil
 }
 

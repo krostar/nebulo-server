@@ -39,11 +39,10 @@ func UserDelete(c echo.Context) (err error) {
 	if err = cert.Revoke(c.Request().TLS.PeerCertificates[0]); err != nil {
 		return httperror.HTTPInternalServerError(fmt.Errorf("unable to revoke certificate: %v", err))
 	}
-	// cp.P.LeaveAll(user, delete personal copy = true)
-	// fp.P.DeleteAll(user)
 	if err = up.P.Delete(u); err != nil {
 		return httperror.HTTPInternalServerError(fmt.Errorf("unable to delete user profile: %v", err))
 	}
 
+	// StatusAccepted because it may take some time for the certificate to be revoked everywhere
 	return c.NoContent(http.StatusAccepted)
 }

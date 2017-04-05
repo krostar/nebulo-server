@@ -1,8 +1,6 @@
 package provider
 
 import (
-	"strings"
-
 	"github.com/go-gorp/gorp"
 	"github.com/krostar/nebulo/log"
 )
@@ -15,5 +13,5 @@ type ORPLogger struct {
 
 // Printf print a SQL action
 func (pl *ORPLogger) Printf(format string, args ...interface{}) {
-	log.Logf(log.DEBUG, strings.ToUpper(log.VerboseReverseMapping[log.DEBUG]), -1, format, args...)
+	log.Logf(log.DEBUG, -1, format, args...)
 }

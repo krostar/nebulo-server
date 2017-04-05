@@ -85,11 +85,11 @@ func Merge() {
 
 func mergeRecursive(cli, file, config reflect.Value) {
 	switch config.Kind() {
-	case reflect.Struct:
+	case reflect.Struct: // nested struct, we want to go deeper
 		for i := 0; i < config.NumField(); i++ {
 			mergeRecursive(cli.Field(i), file.Field(i), config.Field(i))
 		}
-	default:
+	default: // everything else, we want to copy/merge
 		if !tools.IsZeroOrNil(cli) && cli.String() != "" {
 			config.Set(cli)
 		} else if !tools.IsZeroOrNil(file) && file.String() != "" {

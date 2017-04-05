@@ -107,7 +107,7 @@ func VerifyCertificate(cert *x509.Certificate) (revoked bool, err error) {
 		return true, nil
 	}
 
-	// this is temporary solution to avoid having a bigger infrastructure with an OCSP server
+	// this is a temporary solution to avoid having a bigger infrastructure with an OCSP server
 	f, err := os.OpenFile("certs/revokated.info", os.O_RDONLY|os.O_CREATE, 0600)
 	if err != nil {
 		return false, fmt.Errorf("unable to open revokated certs file: %v", err)

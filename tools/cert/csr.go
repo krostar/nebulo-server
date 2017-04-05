@@ -68,16 +68,14 @@ func CheckCSRSignature(csr *x509.CertificateRequest, algo x509.SignatureAlgorith
 		return rsa.VerifyPKCS1v15(pub, hashType, digest, signature)
 	case *ecdsa.PublicKey:
 		ecdsaSig := new(struct{ R, S *big.Int })
-		if _, err := asn1.Unmarshal(signature, ecdsaSig); err != nil {
-			return err
+		_, err := asn1.Unmarshal(signature, ecdsaSig)
+		if err == nil && ecdsaSig.R.Sign() <= 0 || ecdsaSig.S.Sign() <= 0 {
+			err = errors.New("x509: ECDSA signature contained zero or negative values")
 		}
-		if ecdsaSig.R.Sign() <= 0 || ecdsaSig.S.Sign() <= 0 {
-			return errors.New("x509: ECDSA signature contained zero or negative values")
+		if err == nil && !ecdsa.Verify(pub, digest, ecdsaSig.R, ecdsaSig.S) {
+			err = errors.New("x509: ECDSA verification failure")
 		}
-		if !ecdsa.Verify(pub, digest, ecdsaSig.R, ecdsaSig.S) {
-			return errors.New("x509: ECDSA verification failure")
-		}
-		return nil
+		return err
 	default:
 		return errors.New("unknow public key type")
 	}

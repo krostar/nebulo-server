@@ -28,6 +28,7 @@ func (p *Provider) SQLCreateQuery() (string, error) {
 
 // Update only fiew fields from channel
 func (p *Provider) Update(u *channel.Channel, fields map[string]interface{}) (err error) {
+	// create SET <field>=<value> query from map
 	var (
 		sets     string
 		args     []interface{}
@@ -39,10 +40,9 @@ func (p *Provider) Update(u *channel.Channel, fields map[string]interface{}) (er
 		queryIdx++
 	}
 
-	args = append(args, u.ID)
 	query := fmt.Sprintf("UPDATE %s SET %s WHERE id=%s", // nolint: gas
 		p.ChannelTableName, sets, p.DBMap.Dialect.BindVar(queryIdx))
-	if _, err = p.DBMap.Exec(query, args...); err != nil {
+	if _, err = p.DBMap.Exec(query, append(args, u.ID)...); err != nil {
 		return fmt.Errorf("unable to update channel informations: %v", err)
 	}
 	return nil

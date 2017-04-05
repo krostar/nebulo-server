@@ -43,7 +43,6 @@ func checkFileOmitEmpty(str string, param string) (err error) {
 func checkFileReadable(str string, param string) (err error) {
 
 	flag := os.O_RDONLY
-
 	if param != "" {
 		options := strings.Split(param, "|")
 		for _, option := range options {

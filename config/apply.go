@@ -22,14 +22,12 @@ func Apply() (err error) {
 		return err
 	}
 
-	// apply log-related config
 	if err = ApplyLoggingOptions(&Config.Global.Logging); err != nil {
 		return fmt.Errorf("apply logging configuration failed: %v", err)
 	}
 
 	applyEnvironmentOptions(&Config.Run.Environment)
 
-	// apply provider-related config
 	err = ApplyProvidersOptions(&Config.Run.Provider)
 	if err != nil {
 		return fmt.Errorf("apply providers configuration failed: %v", err)
@@ -74,34 +72,50 @@ func ApplyProvidersOptions(pc *providerOptions) (err error) {
 
 	switch pc.Type {
 	case "sqlite":
-		// init users provider
-		uP, err = upSQLite.NewFromConfig(&gp.SQLiteConfig{
-			Filepath: pc.SQLiteFile,
-			DefaultConfig: gp.DefaultConfig{
-				CreateTablesIfNotExists: pc.CreateTablesIfNotExists,
-				DropTablesIfExists:      pc.DropTablesIfExists,
-			},
-		})
-		if err != nil {
-			return fmt.Errorf("users provider sqlite initialization failed: %v", err)
-		}
-
-		// init channels provider
-		cP, err = cpSQLite.NewFromConfig(&gp.SQLiteConfig{
-			Filepath: pc.SQLiteFile,
-			DefaultConfig: gp.DefaultConfig{
-				CreateTablesIfNotExists: pc.CreateTablesIfNotExists,
-				DropTablesIfExists:      pc.DropTablesIfExists,
-			},
-		})
-		if err != nil {
-			return fmt.Errorf("channels provider sqlite initialization failed: %v", err)
-		}
-
+		uP, cP, err = initProvidersSQLite(pc)
 	default:
-		return errors.New("unknown provider")
+		err = errors.New("unknown provider")
+	}
+	if err != nil {
+		return fmt.Errorf("%s providers initialization failed: %v", pc.Type, err)
 	}
 
+	err = useProviders(pc, uP, cP)
+	if err != nil {
+		return fmt.Errorf("unable to apply providers: %v", err)
+	}
+
+	return nil
+}
+
+func initProvidersSQLite(pc *providerOptions) (uP *upSQLite.Provider, cP *cpSQLite.Provider, err error) {
+	// init users provider
+	uP, err = upSQLite.NewFromConfig(&gp.SQLiteConfig{
+		Filepath: pc.SQLiteFile,
+		DefaultConfig: gp.DefaultConfig{
+			CreateTablesIfNotExists: pc.CreateTablesIfNotExists,
+			DropTablesIfExists:      pc.DropTablesIfExists,
+		},
+	})
+	if err != nil {
+		return nil, nil, fmt.Errorf("users provider initialization failed: %v", err)
+	}
+
+	// init channels provider
+	cP, err = cpSQLite.NewFromConfig(&gp.SQLiteConfig{
+		Filepath: pc.SQLiteFile,
+		DefaultConfig: gp.DefaultConfig{
+			CreateTablesIfNotExists: pc.CreateTablesIfNotExists,
+			DropTablesIfExists:      pc.DropTablesIfExists,
+		},
+	})
+	if err != nil {
+		return nil, nil, fmt.Errorf("channels provider initialization failed: %v", err)
+	}
+	return uP, cP, err
+}
+
+func useProviders(pc *providerOptions, uP up.Provider, cP cp.Provider) (err error) {
 	if err = up.Use(uP); err != nil {
 		return fmt.Errorf("unable to set users provider: %v", err)
 	}
@@ -111,6 +125,5 @@ func ApplyProvidersOptions(pc *providerOptions) (err error) {
 		return fmt.Errorf("unable to set channels provider: %v", err)
 	}
 	log.Infof("Using %s to provide channels", pc.Type)
-
 	return nil
 }

@@ -105,6 +105,7 @@ func (p *Provider) Delete(u *user.User) (err error) {
 
 // Update only fiew fields from user
 func (p *Provider) Update(u *user.User, fields map[string]interface{}) (err error) {
+	// create SET <field>=<value> query from map
 	var (
 		sets     string
 		args     []interface{}
@@ -116,10 +117,9 @@ func (p *Provider) Update(u *user.User, fields map[string]interface{}) (err erro
 		queryIdx++
 	}
 
-	args = append(args, u.ID)
 	query := fmt.Sprintf("UPDATE %s SET %s WHERE id=%s", // nolint: gas
 		p.UserTableName, sets, p.DBMap.Dialect.BindVar(queryIdx))
-	if _, err = p.DBMap.Exec(query, args...); err != nil {
+	if _, err = p.DBMap.Exec(query, append(args, u.ID)...); err != nil {
 		return fmt.Errorf("unable to update user informations: %v", err)
 	}
 	return nil

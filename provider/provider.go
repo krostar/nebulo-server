@@ -15,11 +15,13 @@ type initDBFct func(dbmap *gorp.DbMap) (tableName string, err error)
 func InitializeDatabase(db *sql.DB, dialect gorp.Dialect, config DefaultConfig, initDB initDBFct) (dbMap *gorp.DbMap, tableName string, err error) {
 	dbMap = &gorp.DbMap{Db: db, Dialect: dialect}
 
+	// this function allow user to have a callback to configure needed tables and properties
 	tableName, err = initDB(dbMap)
 	if err != nil {
 		return nil, tableName, fmt.Errorf("unable to initialize %q: %v", tableName, err)
 	}
 
+	// in debug mode we want to see the sql requests
 	if log.Verbosity == log.DEBUG {
 		dbMap.TraceOn(strings.Title(tableName)+" Provider -", &ORPLogger{})
 	}

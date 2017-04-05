@@ -49,38 +49,10 @@ import (
  * @apiError (Errors 5XX) {json} 500 Internal server error: server failed to handle the request
 */
 func UserCreate(c echo.Context) (err error) {
-
-	clientCSR, caCert, caPrivateKey, err := loadCertificate(c.Request().Body, c.Request().Header.Get("Content-Length"))
+	// create client certificate template
+	clientCSR, clientCRTRaw, err := signCertificate(c.Request().Body, c.Request().Header.Get("Content-Length"))
 	if err != nil {
 		return err
-	}
-
-	// check if user exist
-	if _, err = up.P.FindByPublicKey(clientCSR.PublicKeyAlgorithm, clientCSR.PublicKey); err == nil {
-		return httperror.UserExist()
-	} else if err != nil && err != user.ErrNotFound {
-		return httperror.HTTPInternalServerError(err)
-	}
-
-	// create client certificate template
-	clientCRTTemplate := x509.Certificate{
-		Signature:          clientCSR.Signature,
-		SignatureAlgorithm: clientCSR.SignatureAlgorithm,
-		PublicKeyAlgorithm: clientCSR.PublicKeyAlgorithm,
-		PublicKey:          clientCSR.PublicKey,
-		SerialNumber:       big.NewInt(2),
-		Issuer:             caCert.Subject,
-		Subject:            clientCSR.Subject,
-		NotBefore:          time.Now(),
-		NotAfter:           time.Now().Add(7 * time.Hour * 24),
-		KeyUsage:           x509.KeyUsageDigitalSignature,
-		ExtKeyUsage:        []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
-	}
-
-	// create client certificate from template and CA public key
-	clientCRTRaw, err := x509.CreateCertificate(rand.Reader, &clientCRTTemplate, caCert, clientCSR.PublicKey, caPrivateKey)
-	if err != nil {
-		return httperror.HTTPInternalServerError(fmt.Errorf("unable to create certificate: %v", err))
 	}
 
 	storablePublicKey, err := x509.MarshalPKIXPublicKey(clientCSR.PublicKey)
@@ -107,8 +79,45 @@ func UserCreate(c echo.Context) (err error) {
 	return nil
 }
 
+func signCertificate(requestBody io.Reader, contentLengthHeader string) (clientCSR *x509.CertificateRequest, clientCRTRaw []byte, err error) {
+	// load required certificate
+	clientCSR, caCert, caPrivateKey, err := loadCertificate(requestBody, contentLengthHeader)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// check if a user exist with this public key
+	if _, err = up.P.FindByPublicKey(clientCSR.PublicKeyAlgorithm, clientCSR.PublicKey); err == nil {
+		return nil, nil, httperror.UserExist()
+	} else if err != nil && err != user.ErrNotFound {
+		return nil, nil, httperror.HTTPInternalServerError(err)
+	}
+
+	clientCRTTemplate := x509.Certificate{
+		Signature:          clientCSR.Signature,
+		SignatureAlgorithm: clientCSR.SignatureAlgorithm,
+		PublicKeyAlgorithm: clientCSR.PublicKeyAlgorithm,
+		PublicKey:          clientCSR.PublicKey,
+		SerialNumber:       big.NewInt(2),
+		Issuer:             caCert.Subject,
+		Subject:            clientCSR.Subject,
+		NotBefore:          time.Now(),
+		NotAfter:           time.Now().Add(7 * time.Hour * 24),
+		KeyUsage:           x509.KeyUsageDigitalSignature,
+		ExtKeyUsage:        []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
+	}
+
+	// create/sign the request with the client CA
+	clientCRTRaw, err = x509.CreateCertificate(rand.Reader, &clientCRTTemplate, caCert, clientCSR.PublicKey, caPrivateKey)
+	if err != nil {
+		return nil, nil, httperror.HTTPInternalServerError(fmt.Errorf("unable to create certificate: %v", err))
+	}
+	return clientCSR, clientCRTRaw, nil
+}
+
 // get client certificate request from body
 func loadCertificate(requestBody io.Reader, contentLengthHeader string) (clientCSR *x509.CertificateRequest, caCert *x509.Certificate, caPrivateKey crypto.Signer, err error) {
+	// check body
 	bodyLength, err := strconv.ParseInt(contentLengthHeader, 10, 64)
 	if err != nil {
 		return nil, nil, nil, httperror.HTTPBadRequestError(fmt.Errorf("bad content-length: %v", err))
@@ -117,6 +126,7 @@ func loadCertificate(requestBody io.Reader, contentLengthHeader string) (clientC
 		return nil, nil, nil, httperror.HTTPBadRequestError(errors.New("no csr submitted"))
 	}
 
+	// parse body to get certificate request
 	rawBodyReader := bytes.NewBuffer(make([]byte, 0, bodyLength))
 	_, err = rawBodyReader.ReadFrom(requestBody)
 	if err != nil {

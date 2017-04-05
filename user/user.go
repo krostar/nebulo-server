@@ -33,6 +33,9 @@ func (u *User) Repr() (string, error) {
 		return "", ErrNil
 	}
 
+	// FingerPrint is not enough because of possible collision, anyway Repr should never
+	// be used to find a user, only to differentiate visually
+
 	userRepr := fmt.Sprintf("%s - %d", u.FingerPrint, u.ID)
 
 	hash := sha256.New()

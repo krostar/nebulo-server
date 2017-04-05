@@ -38,7 +38,7 @@ func SetOutput(output io.Writer) {
 	logger = log.New(output, "", 0)
 }
 
-func formatLog(verbosity Verbose, prefix string, callerSkip int, format string, args ...interface{}) (string, []interface{}) {
+func formatLog(verbosity Verbose, callerSkip int, format string, args ...interface{}) (string, []interface{}) {
 	date := time.Now().Format(time.RFC3339)
 	caller := ""
 
@@ -52,7 +52,7 @@ func formatLog(verbosity Verbose, prefix string, callerSkip int, format string, 
 			caller = " <unable to have caller infos>"
 		}
 	}
-	prefix = fmt.Sprintf("%s [%s]%s", date, prefix, caller)
+	prefix := fmt.Sprintf("%s [%s]%s", date, strings.ToUpper(VerboseReverseMapping[verbosity]), caller)
 	args = append([]interface{}{prefix}, args...)
 	return "%s " + format, args
 }
@@ -60,78 +60,78 @@ func formatLog(verbosity Verbose, prefix string, callerSkip int, format string, 
 // Logln is the base function used for logging,
 // allowing custom prefix and caller skip,
 // logs are not formatted, and a new line will be append
-func Logln(verbose Verbose, prefix string, callerSkipBeforeReachingHere int, args ...interface{}) {
+func Logln(verbose Verbose, callerSkipBeforeReachingHere int, args ...interface{}) {
 	if verbose <= Verbosity {
-		_, args = formatLog(verbose, prefix, callerSkipBeforeReachingHere+1, "", args...)
+		_, args = formatLog(verbose, callerSkipBeforeReachingHere+1, "", args...)
 		logger.Println(args...)
 	}
 }
 
 // Logf is the same function as Logln,
 // the only difference is that the log can be formated
-func Logf(verbose Verbose, prefix string, callerSkipBeforeReachingHere int, format string, args ...interface{}) {
+func Logf(verbose Verbose, callerSkipBeforeReachingHere int, format string, args ...interface{}) {
 	if verbose <= Verbosity {
-		format, args = formatLog(verbose, prefix, callerSkipBeforeReachingHere+1, format, args...)
+		format, args = formatLog(verbose, callerSkipBeforeReachingHere+1, format, args...)
 		logger.Printf(format, args...)
 	}
 }
 
 // Debugln log debug messages
 func Debugln(args ...interface{}) {
-	Logln(DEBUG, strings.ToUpper(VerboseReverseMapping[DEBUG]), 2, args...)
+	Logln(DEBUG, 2, args...)
 }
 
 // Debugf log debug messages
 func Debugf(format string, args ...interface{}) {
-	Logf(DEBUG, strings.ToUpper(VerboseReverseMapping[DEBUG]), 2, format, args...)
+	Logf(DEBUG, 2, format, args...)
 }
 
 // Requestln log request messages
 func Requestln(args ...interface{}) {
-	Logln(REQUEST, strings.ToUpper(VerboseReverseMapping[REQUEST]), 2, args...)
+	Logln(REQUEST, 2, args...)
 }
 
 // Requestf log request messages
 func Requestf(format string, args ...interface{}) {
-	Logf(REQUEST, strings.ToUpper(VerboseReverseMapping[REQUEST]), 2, format, args...)
+	Logf(REQUEST, 2, format, args...)
 }
 
 // Infoln log info messages
 func Infoln(args ...interface{}) {
-	Logln(INFO, strings.ToUpper(VerboseReverseMapping[INFO]), 2, args...)
+	Logln(INFO, 2, args...)
 }
 
 // Infof log info messages
 func Infof(format string, args ...interface{}) {
-	Logf(INFO, strings.ToUpper(VerboseReverseMapping[INFO]), 2, format, args...)
+	Logf(INFO, 2, format, args...)
 }
 
 // Warningln log warning messages
 func Warningln(args ...interface{}) {
-	Logln(WARNING, strings.ToUpper(VerboseReverseMapping[WARNING]), 2, args...)
+	Logln(WARNING, 2, args...)
 }
 
 // Warningf log warning messages
 func Warningf(format string, args ...interface{}) {
-	Logf(WARNING, strings.ToUpper(VerboseReverseMapping[WARNING]), 2, format, args...)
+	Logf(WARNING, 2, format, args...)
 }
 
 // Errorln log error messages
 func Errorln(args ...interface{}) {
-	Logln(ERROR, strings.ToUpper(VerboseReverseMapping[ERROR]), 2, args...)
+	Logln(ERROR, 2, args...)
 }
 
 // Errorf log error messages
 func Errorf(format string, args ...interface{}) {
-	Logf(ERROR, strings.ToUpper(VerboseReverseMapping[ERROR]), 2, format, args...)
+	Logf(ERROR, 2, format, args...)
 }
 
 // Criticalln log critical messages
 func Criticalln(args ...interface{}) {
-	Logln(CRITICAL, strings.ToUpper(VerboseReverseMapping[CRITICAL]), 2, args...)
+	Logln(CRITICAL, 2, args...)
 }
 
 // Criticalf log critical messages
 func Criticalf(format string, args ...interface{}) {
-	Logf(CRITICAL, strings.ToUpper(VerboseReverseMapping[CRITICAL]), 2, format, args...)
+	Logf(CRITICAL, 2, format, args...)
 }

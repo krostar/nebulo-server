@@ -149,19 +149,15 @@ func stringCustomTest(str string, caractersType map[string][]*unicode.RangeTable
 
 	// compare with the configuration defined above
 	for caracterType, requiredNbr := range caractersTypeNumberRequired {
-		if effectiveNbr, ok := caractersTypeNumber[caracterType]; ok {
-			if effectiveNbr < requiredNbr {
-				if err != nil {
-					err = fmt.Errorf("%s, %d %s (only %d detected)", err, requiredNbr, caracterType, effectiveNbr)
-				} else {
-					err = fmt.Errorf("value must have at least %d %s (only %d detected)", requiredNbr, caracterType, effectiveNbr)
-				}
-			}
-		} else {
+		var effectiveNbr = 0
+		if effectiveNbrTest, ok := caractersTypeNumber[caracterType]; ok {
+			effectiveNbr = effectiveNbrTest
+		}
+		if effectiveNbr < requiredNbr {
 			if err != nil {
-				err = fmt.Errorf("%s, %d %s (only %d detected)", err, requiredNbr, caracterType, 0)
+				err = fmt.Errorf("%s, %d %s (only %d detected)", err, requiredNbr, caracterType, effectiveNbr)
 			} else {
-				err = fmt.Errorf("value must have at least %d %s (only %d detected)", requiredNbr, caracterType, 0)
+				err = fmt.Errorf("value must have at least %d %s (only %d detected)", requiredNbr, caracterType, effectiveNbr)
 			}
 		}
 	}
