@@ -5,47 +5,25 @@ Nebulo is a secure way of instant messaging that respect and protect your privac
 [![Build status](https://travis-ci.org/krostar/nebulo.svg?branch=dev)](https://travis-ci.org/krostar/nebulo) [![Go Report Card](https://goreportcard.com/badge/github.com/krostar/nebulo)](https://goreportcard.com/report/github.com/krostar/nebulo) [![Codebeat status](https://codebeat.co/badges/0d3bbf0b-9c5b-44b2-95ae-d29438c89730)](https://codebeat.co/projects/github-com-krostar-nebulo-dev) [![Coverage status](https://coveralls.io/repos/github/krostar/nebulo/badge.svg?branch=dev)](https://coveralls.io/github/krostar/nebulo?branch=dev)
 
 ## Usage
-The configuration for nebulo's binary can be made in different ways.
-First, the configuration manager try to load the configuration from the `/etc/nebulo/config.ini` file, then from the `./config.ini` and then the command line.
-
-Every new loaded configuration override the previous one, only newly defined properties are overloaded.
-
-### Options
 ```sh
-$> nebulo --help
-Usage:
-  nebulo
+# check if you nebulo is in your $PATH
+$>nebulo version
 
-Application Options:
-  -h, --help                                                      show this help message
-      --config-gen=                                               generate a configuration file for the actual configuration to the specified file and quit
+# see commands and parameters
+$>nebulo help
 
-Configuration Options:
-      --config-dont-load-default                                  choose to load or not the default configuration files (default: false)
-  -c, --config-file=                                              specify a configuration file (be cautious on infinite-recursive-configuration)
+# get help on the run command
+$>nebulo help run
 
-Environment Options:
-  -e, --environment=[dev|beta|prod]                               environment to use for external services connection purpose - this parameter is required
-  -a, --address=                                                  override environment address to use to listen to (default: depend on -e (environment))
-  -p, --port=                                                     override environment port to use to listen to (default: depend on -e (environment))
+# copy sample configuration file
+$>cp config.sample/json config.json
 
-Logging Options:
-  -l, --logging-file=                                             the file where write the log (default: no file, standart output)
-  -v, --verbose=[quiet|critical|error|warning|info|request|debug] level of information to write on standart output or in a file (default: debug)
+# fill required values (run `nebulo help run` to know which values are required)
+$>vim config.json
 
-TLS Options:
-      --tls-crt-file=                                             tls certificate file used to encrypt communication - this parameter is required
-      --tls-key-file=                                             tls certificate key used to encrypt communication - this parameter is required
-      --tls-clients-ca-cert-file=                                 tls certification authority used to validate clients certificate for the tls mutual authentication - this parameter is required
-      --tls-clients-ca-key-file=                                  tls certification authority key file used to validate clients certificate for the tls mutual authentication - this parameter is required
-      --tls-clients-ca-key-pwd=                                   tls certification authority key password used to validate clients certificate for the tls mutual authentication (default: no password)
-
-User Options:
-      --user-provider=[file]                                      provider to use to get users informations
-      --user-provider-file=                                       provider file path where users informations are stored
-
+# start the server
+$>nebulo -c path/to/config.json run
 ```
-
 
 ## Documentation
 The API documentation of this project for the **dev** environment is available on [doc.nebulo.io/dev](https://doc.nebulo.io/dev), the Golang documentation is available on the [godoc website](https://godoc.org/github.com/krostar/nebulo)
@@ -91,19 +69,24 @@ We are using a Makefile to everything we need (build, release, tests, documentat
 ```sh
 # Get the dependencies and tools
 $> make vendor
+
 # Build the project (by default generated binary will be in <root>/build/bin/nebulo)
 $> make build
+
 # Run the project without arguments
 $> make run
+
 # Run the project with arguments
 $> make run ARGS="--environment dev"
+
 # Test the project
 $> make test
+
 # Generate documentation
 $> make doc
+
 # Generate release
 $> make release TAG=1.2.3
-# ...
 ```
 
 ### Guidelines

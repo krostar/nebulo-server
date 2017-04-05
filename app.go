@@ -64,14 +64,14 @@ func main() {
 			},
 		}, Commands: []*cli.Command{
 			&cli.Command{
-				Name:      "run",
-				Usage:     "start the nebulo api server",
-				ArgsUsage: " ",
+				Name:        "run",
+				Usage:       "start the nebulo api server",
+				Description: "required parameters description starts with a wildcard (*)",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:        "environment",
 						Aliases:     []string{"e"},
-						Usage:       "environment to use for external services connection purpose (dev, preprod, prod)",
+						Usage:       "* environment to use for external services connection purpose (dev, preprod, prod)",
 						Destination: &config.CLI.Run.Environment.Type,
 					}, &cli.StringFlag{
 						Name:        "address",
@@ -87,19 +87,19 @@ func main() {
 						Destination: &config.CLI.Run.Environment.Port,
 					}, &cli.StringFlag{
 						Name:        "tls-crt",
-						Usage:       "tls certificate file used to encrypt communication (https)",
+						Usage:       "* tls certificate file used to encrypt communication (https)",
 						Destination: &config.CLI.Run.TLS.Cert,
 					}, &cli.StringFlag{
 						Name:        "tls-key",
-						Usage:       "tls certificate key used with --tls-crt",
+						Usage:       "* tls certificate key used with --tls-crt",
 						Destination: &config.CLI.Run.TLS.Key,
 					}, &cli.StringFlag{
 						Name:        "tls-clients-ca",
-						Usage:       "tls certification authority used to validate clients certificate for the tls mutual authentication",
+						Usage:       "* tls certification authority used to validate clients certificate for the tls mutual authentication",
 						Destination: &config.CLI.Run.TLS.ClientsCA.Cert,
 					}, &cli.StringFlag{
 						Name:        "tls-clients-ca-key",
-						Usage:       "tls certification authority key used with --tls-clients-ca",
+						Usage:       "* tls certification authority key used with --tls-clients-ca",
 						Destination: &config.CLI.Run.TLS.ClientsCA.Key,
 					}, &cli.StringFlag{
 						Name:        "tls-clients-ca-key-pwd",
@@ -107,7 +107,7 @@ func main() {
 						Destination: &config.CLI.Run.TLS.ClientsCA.KeyPassword,
 					}, &cli.StringFlag{
 						Name:        "provider",
-						Usage:       "database type to use to provide users and messages (sqlite)",
+						Usage:       "* database type to use to provide users and messages (sqlite)",
 						Destination: &config.CLI.Run.Provider.Type,
 					}, &cli.BoolFlag{
 						Name:        "provider-createtables",

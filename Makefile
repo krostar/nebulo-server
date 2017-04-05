@@ -2,7 +2,7 @@
 BINARY_NAME			:= nebulo
 
 # Used for generation and copy in archive
-CONFIGURATION_FILE	:= config.sample.ini
+CONFIGURATION_FILE	:= config.sample.json
 
 # Used for go coverage tools
 TEST_COVERAGE_MODE	?= count
@@ -11,7 +11,7 @@ TEST_COVERAGE_MODE	?= count
 #	and remove terminal colors
 CI					?= 0
 
-
+# Overload this variable on make call `make <function> ARGS="help" to run with custom arguments`
 ARGS				?= -c config.json run
 
 # Used only on function 'release', generate one binary per couple os/arch
@@ -73,7 +73,7 @@ build: vendor $(BINARY_NAME)
 # Generate configuration file
 config: $(BINARY_NAME)
 	$Q echo -e '$(COLOR_PRINT)Generating $(CONFIGURATION_FILE)...$(COLOR_RESET)'
-	$Q [ "$(shell $(DIR_BUILD)/bin/$(BINARY_NAME) --config-dont-load-default --config-gen -v quiet > $(CONFIGURATION_FILE) || echo $$? && false)" = "102" ]
+	$Q $(shell $(DIR_BUILD)/bin/$(BINARY_NAME) -v quiet config-gen -d $(CONFIGURATION_FILE))
 	$Q echo -e '$(COLOR_SUCCESS)Compilation done without errors$(COLOR_RESET)'
 
 # Compile for current os/arch and run binary
