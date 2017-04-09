@@ -127,15 +127,9 @@ func initProviders(pc *providerOptions) (err error) {
 
 func resetProviders(pdc *gp.DefaultConfig) (err error) {
 	if pdc.DropTablesIfExists {
-		err = gp.RP.DB.Exec("SET FOREIGN_KEY_CHECKS=0;").Error
-		if err == nil {
-			err = cp.P.DropTables()
-		}
+		err = cp.P.DropTables()
 		if err == nil {
 			err = up.P.DropTables()
-		}
-		if err == nil {
-			err = gp.RP.DB.Exec("SET FOREIGN_KEY_CHECKS=1;").Error
 		}
 	}
 	if err == nil && pdc.CreateTablesIfNotExists {
