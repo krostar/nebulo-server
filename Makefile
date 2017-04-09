@@ -55,7 +55,7 @@ all : build
 $(BINARY_NAME):
 	$Q echo -e '$(COLOR_PRINT)Building $(DIR_BUILD)/bin/$(BINARY_NAME)...$(COLOR_RESET)'
 	$Q mkdir -p $(DIR_BUILD)/bin
-	$Q go build -o $(DIR_BUILD)/bin/$(BINARY_NAME) $(BUILD_FLAGS)
+	$Q go build -i -v -o $(DIR_BUILD)/bin/$(BINARY_NAME) $(BUILD_FLAGS)
 	$Q echo -e '$(COLOR_SUCCESS)Compilation done without errors$(COLOR_RESET)'
 
 # Synchronize vendors and tools
@@ -67,6 +67,15 @@ vendor:
 	$Q echo -e '$(COLOR_PRINT)Syncing linters...$(COLOR_RESET)'
 	$Q retool do gometalinter --install --update --force
 	$Q echo -e '$(COLOR_SUCCESS)Synchronization done without errors$(COLOR_RESET)'
+
+# Synchronize vendors and tools
+vendor_clean:
+	$Q echo -e '$(COLOR_PRINT)Cleaning vendors...$(COLOR_RESET)'
+	$Q echo -e '$(COLOR_PRINT)Cleaning vendored tools...$(COLOR_RESET)'
+	$Q rm -rf _tools
+	$Q echo -e '$(COLOR_PRINT)Cleaning vendored sources...$(COLOR_RESET)'
+	$Q find vendor/* -maxdepth 0 -type d -exec rm -r {} +
+	$Q echo -e '$(COLOR_SUCCESS)Cleaned$(COLOR_RESET)'
 
 build: vendor $(BINARY_NAME)
 
@@ -83,7 +92,7 @@ run: $(BINARY_NAME)
 	$Q echo -e '$(COLOR_PRINT)Terminated$(COLOR_RESET)'
 
 # Remove all non-essentials directories and files
-clean:
+clean: vendor_clean
 	$Q echo -e '$(COLOR_PRINT)Cleaning...$(COLOR_RESET)'
 	$Q rm -rf $(DIR_BUILD) $(DIR_RELEASE) $(DIR_RELEASE_TMP) $(DIR_COVERAGE)
 	$Q echo -e '$(COLOR_SUCCESS)Cleaned$(COLOR_RESET)'
@@ -122,7 +131,7 @@ test_code:
 # Check unit tests
 test_unit:
 	$Q echo -e '$(COLOR_PRINT)Testing code with unit tests...$(COLOR_RESET)'
-	$Q go test -v -timeout 5s $(shell go list ./... | grep -v /vendor/)
+	$Q retool do govendor test +local -v -timeout 5s
 	$Q echo -e '$(COLOR_SUCCESS)Done$(COLOR_RESET)'
 
 # TODOs should never exist
@@ -141,7 +150,7 @@ coverage:
 	$Q rm -rf $(DIR_COVERAGE)
 	$Q mkdir -p $(DIR_COVERAGE)
 	$Q echo "mode: $(TEST_COVERAGE_MODE)" > $(DIR_COVERAGE)/coverage.out
-	$Q for pkg in $(shell go list ./... | grep -v /vendor/); do \
+	$Q for pkg in $(shell retool do govendor list -no-status +local); do \
 		go test -covermode="$(TEST_COVERAGE_MODE)" -coverprofile="$(DIR_COVERAGE)/coverage.tmp" "$$pkg" 2>&1 > /dev/null; \
 		grep -h -v "^mode:" $(DIR_COVERAGE)/coverage.tmp >> $(DIR_COVERAGE)/coverage.out 2> /dev/null; \
 	done

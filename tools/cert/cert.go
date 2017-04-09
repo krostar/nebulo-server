@@ -141,3 +141,18 @@ func FingerprintSHA256(pubKeyDER []byte) string {
 	hash := base64.RawStdEncoding.EncodeToString(sha256sum[:])
 	return "SHA256:" + hash
 }
+
+// PublicKeyAlgorithmToString return a string representation
+// of a x509.PublicKeyAlgorithm
+func PublicKeyAlgorithmToString(pka x509.PublicKeyAlgorithm) string {
+	switch pka {
+	case x509.RSA:
+		return "RSA"
+	case x509.DSA:
+		return "DSA"
+	case x509.ECDSA:
+		return "ECDSA"
+	default:
+		return "unknown"
+	}
+}

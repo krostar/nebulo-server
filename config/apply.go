@@ -5,12 +5,17 @@ import (
 	"fmt"
 
 	cp "github.com/krostar/nebulo/channel/provider"
+	cpMySQL "github.com/krostar/nebulo/channel/provider/mysql"
 	cpSQLite "github.com/krostar/nebulo/channel/provider/sqlite"
+	gp "github.com/krostar/nebulo/provider"
+	gpMySQL "github.com/krostar/nebulo/provider/mysql"
+	gpSQLite "github.com/krostar/nebulo/provider/sqlite"
+	up "github.com/krostar/nebulo/user/provider"
+	upMySQL "github.com/krostar/nebulo/user/provider/mysql"
+	upSQLite "github.com/krostar/nebulo/user/provider/sqlite"
+
 	"github.com/krostar/nebulo/env"
 	"github.com/krostar/nebulo/log"
-	gp "github.com/krostar/nebulo/provider"
-	up "github.com/krostar/nebulo/user/provider"
-	upSQLite "github.com/krostar/nebulo/user/provider/sqlite"
 	validator "gopkg.in/validator.v2"
 )
 
@@ -65,14 +70,18 @@ func applyEnvironmentOptions(ec *env.Config) {
 
 // ApplyProvidersOptions apply configuration on providers package
 func ApplyProvidersOptions(pc *providerOptions) (err error) {
-	var (
-		uP up.Provider
-		cP cp.Provider
-	)
+	pdc := gp.DefaultConfig{
+		CreateTablesIfNotExists: pc.CreateTablesIfNotExists,
+		DropTablesIfExists:      pc.DropTablesIfExists,
+	}
 
 	switch pc.Type {
 	case "sqlite":
-		uP, cP, err = initProvidersSQLite(pc)
+		pc.SQLiteConfig.DefaultConfig = pdc
+		err = gpSQLite.Use(&pc.SQLiteConfig)
+	case "mysql":
+		pc.MySQLConfig.DefaultConfig = pdc
+		err = gpMySQL.Use(&pc.MySQLConfig)
 	default:
 		err = errors.New("unknown provider")
 	}
@@ -80,50 +89,66 @@ func ApplyProvidersOptions(pc *providerOptions) (err error) {
 		return fmt.Errorf("%s providers initialization failed: %v", pc.Type, err)
 	}
 
-	err = useProviders(pc, uP, cP)
+	err = initProviders(pc)
 	if err != nil {
-		return fmt.Errorf("unable to apply providers: %v", err)
+		return fmt.Errorf("unable to initialized providers: %v", err)
 	}
 
+	err = resetProviders(&pdc)
+	if err != nil {
+		return fmt.Errorf("unable to reset providers: %v", err)
+	}
 	return nil
 }
 
-func initProvidersSQLite(pc *providerOptions) (uP *upSQLite.Provider, cP *cpSQLite.Provider, err error) {
-	// init users provider
-	uP, err = upSQLite.NewFromConfig(&gp.SQLiteConfig{
-		Filepath: pc.SQLiteFile,
-		DefaultConfig: gp.DefaultConfig{
-			CreateTablesIfNotExists: pc.CreateTablesIfNotExists,
-			DropTablesIfExists:      pc.DropTablesIfExists,
-		},
-	})
-	if err != nil {
-		return nil, nil, fmt.Errorf("users provider initialization failed: %v", err)
+func initProviders(pc *providerOptions) (err error) {
+	switch pc.Type {
+	case "sqlite":
+		if err = upSQLite.Init(); err != nil {
+			return fmt.Errorf("sqlite user providers initialization failed: %v", err)
+		}
+		if err = cpSQLite.Init(); err != nil {
+			return fmt.Errorf("sqlite channel providers initialization failed: %v", err)
+		}
+	case "mysql":
+		if err = upMySQL.Init(); err != nil {
+			return fmt.Errorf("sqlite user providers initialization failed: %v", err)
+		}
+		if err = cpMySQL.Init(); err != nil {
+			return fmt.Errorf("sqlite channel providers initialization failed: %v", err)
+		}
+	default:
+		return fmt.Errorf("providers initialization failed: unknown %v provider", pc.Type)
 	}
 
-	// init channels provider
-	cP, err = cpSQLite.NewFromConfig(&gp.SQLiteConfig{
-		Filepath: pc.SQLiteFile,
-		DefaultConfig: gp.DefaultConfig{
-			CreateTablesIfNotExists: pc.CreateTablesIfNotExists,
-			DropTablesIfExists:      pc.DropTablesIfExists,
-		},
-	})
-	if err != nil {
-		return nil, nil, fmt.Errorf("channels provider initialization failed: %v", err)
-	}
-	return uP, cP, err
+	log.Infof("users and channels provided via %s", pc.Type)
+	return nil
 }
 
-func useProviders(pc *providerOptions, uP up.Provider, cP cp.Provider) (err error) {
-	if err = up.Use(uP); err != nil {
-		return fmt.Errorf("unable to set users provider: %v", err)
+func resetProviders(pdc *gp.DefaultConfig) (err error) {
+	if pdc.DropTablesIfExists {
+		err = gp.RP.DB.Exec("SET FOREIGN_KEY_CHECKS=0;").Error
+		if err == nil {
+			err = cp.P.DropTables()
+		}
+		if err == nil {
+			err = up.P.DropTables()
+		}
+		if err == nil {
+			err = gp.RP.DB.Exec("SET FOREIGN_KEY_CHECKS=1;").Error
+		}
 	}
-	log.Infof("Using %s to provide users", pc.Type)
-
-	if err = cp.Use(cP); err != nil {
-		return fmt.Errorf("unable to set channels provider: %v", err)
+	if err == nil && pdc.CreateTablesIfNotExists {
+		err = cp.P.CreateTables()
+		if err == nil {
+			err = up.P.CreateTables()
+		}
+		if err == nil {
+			err = cp.P.CreateIndexes()
+		}
+		if err == nil {
+			err = up.P.CreateIndexes()
+		}
 	}
-	log.Infof("Using %s to provide channels", pc.Type)
-	return nil
+	return err
 }

@@ -6,6 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"time"
+
+	"github.com/krostar/nebulo/channel"
 )
 
 var (
@@ -17,14 +19,15 @@ var (
 
 // User is the modelisation of an user
 type User struct {
-	ID                 int                     `json:"-" db:"id, primarykey, autoincrement, notnull"`
-	PublicKeyDER       []byte                  `json:"-" db:"key_public_der, notnull"`
-	PublicKeyAlgorithm x509.PublicKeyAlgorithm `json:"-" db:"key_public_algo, notnull"`
-	FingerPrint        string                  `json:"key_fingerprint" db:"key_fingerprint, size:51 notnull"`
-	DisplayName        string                  `json:"display_name" db:"display_name, size:42" validator-update:"string=length:max|42"`
-	SignUp             time.Time               `json:"signup" db:"signup, notnull"`
-	LoginFirst         time.Time               `json:"login_first" db:"login_first"`
-	LoginLast          time.Time               `json:"login_last" db:"login_last"`
+	ID                 int                     `json:"-" gorm:"column:id; primary_key; not null"`
+	PublicKeyDER       []byte                  `json:"-" gorm:"column:key_public_der; size:2000; not null"`
+	PublicKeyAlgorithm x509.PublicKeyAlgorithm `json:"-" gorm:"column:key_public_algorithm; type:tinyint(1); not null"`
+	FingerPrint        string                  `json:"key_fingerprint" gorm:"column:key_fingerprint; size:51; not null"`
+	DisplayName        string                  `json:"display_name" gorm:"column:display_name; size:42" validator-update:"string=length:max|42"`
+	Signup             time.Time               `json:"signup" gorm:"column:signup; notnull"`
+	LoginFirst         time.Time               `json:"login_first" gorm:"column:login_first; notnull"`
+	LoginLast          time.Time               `json:"login_last" gorm:"column:login_last; notnull"`
+	Channels           []*channel.Channel      `json:"channels" gorm:"many2many:channel_memberships"`
 }
 
 // Repr return an uniq representation of a given user

@@ -9,12 +9,10 @@ import (
 
 	cli "gopkg.in/urfave/cli.v2"
 
-	cp "github.com/krostar/nebulo/channel/provider"
 	"github.com/krostar/nebulo/config"
 	"github.com/krostar/nebulo/log"
 	"github.com/krostar/nebulo/router"
 	"github.com/krostar/nebulo/router/handler"
-	up "github.com/krostar/nebulo/user/provider"
 )
 
 var (
@@ -115,11 +113,6 @@ func main() {
 						DefaultText: "false",
 						Destination: &config.CLI.Run.Provider.CreateTablesIfNotExists,
 					}, &cli.BoolFlag{
-						Name:        "provider-truncatetables",
-						Usage:       "truncate tables - only available in dev environment",
-						DefaultText: "false",
-						Destination: &config.CLI.Run.Provider.TruncateTables,
-					}, &cli.BoolFlag{
 						Name:        "provider-droptables",
 						Usage:       "drop tables if not exists - only available in dev environment",
 						DefaultText: "false",
@@ -127,18 +120,6 @@ func main() {
 					},
 				}, Before: beforeCommandWhoNeedMergeConfiguration,
 				Action: commandRun,
-			}, &cli.Command{
-				Name:  "sql-gen",
-				Usage: "generate the provider's create queries for users and channels and quit",
-				Flags: []cli.Flag{
-					&cli.StringFlag{
-						Name:        "destination",
-						Aliases:     []string{"d"},
-						Usage:       "path to a file where the queries will be writted",
-						DefaultText: "standart output",
-					},
-				}, Before: beforeCommandWhoNeedMergeConfiguration,
-				Action: commandSQLGen,
 			}, &cli.Command{
 				Name:  "config-gen",
 				Usage: "generate a configuration file and quit",
@@ -194,27 +175,6 @@ func commandRun(_ *cli.Context) error {
 	)
 }
 
-func commandSQLGen(c *cli.Context) error {
-	log.Infoln("SQL creation query parameter detected, program will output queries and quit")
-	userCreationQuery, err := up.P.SQLCreateQuery()
-	if err != nil {
-		return fmt.Errorf("unable to get sql users provider creation query: %v", err)
-	}
-	channelCreationQuery, err := cp.P.SQLCreateQuery()
-	if err != nil {
-		return fmt.Errorf("unable to get sql channels provider creation query: %v", err)
-	}
-	queries := fmt.Sprintf("%s\n\n%s\n", userCreationQuery, channelCreationQuery)
-	if filepath := c.String("destination"); filepath != "" {
-		if err := ioutil.WriteFile(filepath, []byte(queries), 0644); err != nil {
-			return fmt.Errorf("unable to write sql queries file: %v", err)
-		}
-	} else {
-		fmt.Printf("%s", queries)
-	}
-	return nil
-}
-
 func commandConfigGen(c *cli.Context) error {
 	conf, err := json.MarshalIndent(config.Config, "", "    ")
 	if err != nil {
@@ -228,7 +188,6 @@ func commandConfigGen(c *cli.Context) error {
 		fmt.Println(string(conf))
 	}
 	return nil
-
 }
 
 func commandVersion(_ *cli.Context) error {

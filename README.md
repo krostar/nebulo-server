@@ -6,7 +6,7 @@ Nebulo is a secure way of instant messaging that respect and protect your privac
 
 ## Usage
 ```sh
-# check if you nebulo is in your $PATH
+# check if nebulo is in your $PATH
 $>nebulo version
 
 # see commands and parameters

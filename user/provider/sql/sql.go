@@ -4,29 +4,18 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
-	"reflect"
 	"time"
 
-	"github.com/go-gorp/gorp"
+	"github.com/krostar/nebulo/channel/provider"
+	gp "github.com/krostar/nebulo/provider"
 	"github.com/krostar/nebulo/user"
-	"github.com/krostar/nebulo/user/provider"
 )
 
-// Provider implement Interact and contain
-// database useful variable
+// Provider implements the methods needed to manage users
+// for every SQL based database
 type Provider struct {
+	*gp.RootProvider
 	provider.Provider
-	DBMap         *gorp.DbMap
-	UserTableName string
-}
-
-// SQLCreateQuery return the query used to generate the users table
-func (p *Provider) SQLCreateQuery() (string, error) {
-	userTable, err := p.DBMap.TableFor(reflect.TypeOf(user.User{}), false)
-	if err != nil {
-		return "", fmt.Errorf("unable to get sql table for user.User struct: %v", err)
-	}
-	return userTable.SqlForCreate(true), nil
 }
 
 // Login update field on user login
@@ -37,14 +26,11 @@ func (p *Provider) Login(u *user.User) (err error) {
 
 	now := time.Now()
 
-	u.LoginLast = now
+	updates := user.User{LoginLast: now}
 	if u.LoginFirst.IsZero() {
-		u.LoginFirst = now
+		updates.LoginFirst = now
 	}
-
-	query := fmt.Sprintf("UPDATE %s SET login_first=%s, login_last=%s WHERE id=%s", // nolint: gas
-		p.UserTableName, p.DBMap.Dialect.BindVar(0), p.DBMap.Dialect.BindVar(1), p.DBMap.Dialect.BindVar(2))
-	if _, err = p.DBMap.Exec(query, u.LoginFirst, u.LoginLast, u.ID); err != nil {
+	if err = p.DB.Model(u).Updates(updates).Error; err != nil {
 		return fmt.Errorf("unable to update login informations: %v", err)
 	}
 
@@ -70,10 +56,12 @@ func (p *Provider) Create(userToAdd *user.User) (u *user.User, err error) {
 		return nil, errors.New("an user already exist with this public key")
 	}
 
-	userToAdd.SignUp = time.Now()
+	userToAdd.Signup = time.Now()
+	// TODO: change that
+	userToAdd.LoginFirst = time.Unix(0, 0)
+	userToAdd.LoginLast = time.Unix(0, 0)
 
-	err = p.DBMap.Insert(userToAdd)
-	if err != nil {
+	if err = p.DB.Create(userToAdd).Error; err != nil {
 		return nil, fmt.Errorf("unable to insert user: %v", err)
 	}
 
@@ -95,8 +83,7 @@ func (p *Provider) Delete(u *user.User) (err error) {
 		return user.ErrNotFound
 	}
 
-	_, err = p.DBMap.Delete(u)
-	if err != nil {
+	if err = p.DB.Delete(u).Error; err != nil {
 		return fmt.Errorf("unable to delete user: %v", err)
 	}
 
@@ -105,21 +92,11 @@ func (p *Provider) Delete(u *user.User) (err error) {
 
 // Update only fiew fields from user
 func (p *Provider) Update(u *user.User, fields map[string]interface{}) (err error) {
-	// create SET <field>=<value> query from map
-	var (
-		sets     string
-		args     []interface{}
-		queryIdx = 0
-	)
-	for key, value := range fields {
-		sets += " " + key + "=" + p.DBMap.Dialect.BindVar(queryIdx)
-		args = append(args, value)
-		queryIdx++
+	if u == nil {
+		return user.ErrNil
 	}
 
-	query := fmt.Sprintf("UPDATE %s SET %s WHERE id=%s", // nolint: gas
-		p.UserTableName, sets, p.DBMap.Dialect.BindVar(queryIdx))
-	if _, err = p.DBMap.Exec(query, append(args, u.ID)...); err != nil {
+	if err = p.DB.Model(u).Updates(fields).Error; err != nil {
 		return fmt.Errorf("unable to update user informations: %v", err)
 	}
 	return nil

@@ -2,16 +2,14 @@ package provider
 
 import (
 	"crypto/x509"
-	"errors"
 
-	"github.com/go-gorp/gorp"
+	gp "github.com/krostar/nebulo/provider"
 	"github.com/krostar/nebulo/user"
 )
 
-// Provider represent the way we can interact with a provider
-// to get informations about a user
+// Provider contains all the methods needed to manage users
 type Provider interface {
-	SQLCreateQuery() (sqlCreationQuery string, err error)
+	gp.TablesManagement
 
 	Login(u *user.User) (err error)
 	Create(userToAdd *user.User) (u *user.User, err error)
@@ -23,26 +21,5 @@ type Provider interface {
 	Update(u *user.User, fields map[string]interface{}) (err error)
 }
 
-// P is the currently used provider
+// P is the selected provider
 var P Provider
-
-// Use set the new provider as the provider to use
-func Use(newProvider Provider) (err error) {
-	if P != nil {
-		return errors.New("Hot database type change isn't supported")
-	}
-	P = newProvider
-
-	return nil
-}
-
-// InitializeDatabase define the user table properties
-func InitializeDatabase(dbMap *gorp.DbMap) (userTableName string, err error) {
-	userTableName = "user"
-
-	userTable := dbMap.AddTableWithName(user.User{}, userTableName)
-	userTable.SetUniqueTogether("key_public_der", "key_public_algo")
-	userTable.SetKeys(true, "ID")
-
-	return userTableName, err
-}

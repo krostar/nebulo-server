@@ -12,15 +12,23 @@
         "tls": {
             "cert": "",
             "key": "",
-            "clients-ca": {
+            "clients_ca": {
                 "cert": "",
                 "key": "",
-                "key-password": ""
+                "key_password": ""
             }
         },
         "provider": {
             "type": "",
-            "sqlite-file": ""
+            "sqlite": {
+                "file": ""
+            },
+            "mysql": {
+                "username": "",
+                "password": "",
+                "address": "",
+                "database": ""
+            }
         }
     }
 }

@@ -7,12 +7,12 @@ import (
 )
 
 // Provider implements the methods needed to manage a channel
-// via a SQLite database
+// via a MySQL database
 type Provider struct {
 	dp.Provider
 }
 
-// Init initialize a SQLite provider and set it as the used provider
+// Init initialize a MySQL provider and set it as the used provider
 func Init() error {
 	if gp.RP == nil {
 		return gp.ErrRPIsNil

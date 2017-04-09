@@ -7,6 +7,7 @@ import (
 	"reflect"
 
 	"github.com/krostar/nebulo/env"
+	gp "github.com/krostar/nebulo/provider"
 	"github.com/krostar/nebulo/tools"
 	_ "github.com/krostar/nebulo/tools/validator" // used to init custom validators before using them
 )
@@ -29,23 +30,23 @@ type runOptions struct {
 type tlsOptions struct {
 	Cert      string       `json:"cert" validate:"file=readable"`
 	Key       string       `json:"key" validate:"file=readable"`
-	ClientsCA tlsClientsCA `json:"clients-ca" validate:"-"`
+	ClientsCA tlsClientsCA `json:"clients_ca"`
 }
 
 type tlsClientsCA struct {
 	Cert        string `json:"cert" validate:"file=readable"`
 	Key         string `json:"key" validate:"file=readable"`
-	KeyPassword string `json:"key-password" validate:"-"`
+	KeyPassword string `json:"key_password"`
 }
 
 type providerOptions struct {
-	Type string `json:"type" validate:"regexp=^(sqlite)?$"`
+	Type string `json:"type" validate:"regexp=^(sqlite|mysql)?$"`
 
-	CreateTablesIfNotExists bool `json:"-" validate:"-"`
-	TruncateTables          bool `json:"-" validate:"-"`
-	DropTablesIfExists      bool `json:"-" validate:"-"`
+	CreateTablesIfNotExists bool `json:"-"`
+	DropTablesIfExists      bool `json:"-"`
 
-	SQLiteFile string `json:"sqlite-file" validate:"file=omitempty+readable"`
+	SQLiteConfig gp.SQLiteConfig `json:"sqlite"`
+	MySQLConfig  gp.MySQLConfig  `json:"mysql"`
 }
 
 // Options list all the available configurations

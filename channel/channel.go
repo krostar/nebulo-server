@@ -14,7 +14,8 @@ var (
 
 // Channel is the modelisation of a channel
 type Channel struct {
-	ID       int       `json:"-" db:"id, primarykey, autoincrement, notnull"`
-	Name     string    `json:"name" db:"name, size:42, notnull"`
-	Creation time.Time `json:"creation" db:"creation, notnull"`
+	ID int `json:"-" gorm:"column:id; not null"`
+
+	Name    string    `json:"name" gorm:"column:name; size:42; not null"`
+	Created time.Time `json:"created" gorm:"column:created; not null"`
 }
