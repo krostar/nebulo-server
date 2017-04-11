@@ -4,7 +4,7 @@ import (
 	"crypto/x509"
 	"fmt"
 
-	"github.com/krostar/nebulo/user"
+	"github.com/krostar/nebulo-server/user"
 )
 
 // FindByPublicKey is used to find a user from his public key

@@ -1,8 +1,8 @@
 package provider
 
 import (
-	"github.com/krostar/nebulo/channel"
-	gp "github.com/krostar/nebulo/provider"
+	gp "github.com/krostar/nebulo-golib/provider"
+	"github.com/krostar/nebulo-server/channel"
 )
 
 // Provider contains all the methods needed to manage channels

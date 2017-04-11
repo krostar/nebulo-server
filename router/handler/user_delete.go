@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/krostar/nebulo/router/httperror"
+	"github.com/krostar/nebulo-golib/router/httperror"
 	"github.com/labstack/echo"
 
-	"github.com/krostar/nebulo/tools/cert"
-	up "github.com/krostar/nebulo/user/provider"
+	"github.com/krostar/nebulo-golib/tools/cert"
+	up "github.com/krostar/nebulo-server/user/provider"
 )
 
 // UserDelete handle the route DELETE /user/.

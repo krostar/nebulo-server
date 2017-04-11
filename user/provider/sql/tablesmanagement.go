@@ -1,6 +1,6 @@
 package sql
 
-import "github.com/krostar/nebulo/user"
+import "github.com/krostar/nebulo-server/user"
 
 // CreateTables create all the required tables for users
 func (p *Provider) CreateTables() (err error) {

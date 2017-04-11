@@ -9,10 +9,10 @@ import (
 	"net"
 	"strconv"
 
-	"github.com/krostar/nebulo/env"
-	"github.com/krostar/nebulo/router/handler"
-	"github.com/krostar/nebulo/router/httperror"
-	nmiddleware "github.com/krostar/nebulo/router/middleware"
+	"github.com/krostar/nebulo-server/env"
+	"github.com/krostar/nebulo-server/router/handler"
+	chttperror "github.com/krostar/nebulo-server/router/httperror"
+	nmiddleware "github.com/krostar/nebulo-server/router/middleware"
 	"github.com/labstack/echo"
 )
 
@@ -34,7 +34,7 @@ func setupRouter(environment *env.Config) {
 		router.Debug = false
 	}
 
-	router.HTTPErrorHandler = httperror.ErrorHandler
+	router.HTTPErrorHandler = chttperror.ErrorHandler
 	router.Server.Addr = environment.Address + ":" + strconv.Itoa(environment.Port)
 
 	setupMiddlewares()
@@ -47,7 +47,7 @@ func createTLSConfig(certFile string, keyFile string, clientCAFilepath string) (
 		return nil, fmt.Errorf("unable to load tls key pair: %v", err)
 	}
 
-	// Load our CA certificate
+	// load our clients CA certificate
 	clientCAFile, err := ioutil.ReadFile(clientCAFilepath)
 	if err != nil {
 		return nil, fmt.Errorf("unable to read file %s: %v", clientCAFile, err)

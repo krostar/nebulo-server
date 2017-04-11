@@ -49,7 +49,7 @@ else
 endif
 
 
-all : build
+all : clean vendor build test
 
 # Compile for current os/arch and save binary in $DIR_BUILD folder
 $(BINARY_NAME):
@@ -64,6 +64,7 @@ vendor:
 	$Q retool sync
 	$Q echo -e '$(COLOR_PRINT)Syncing vendors...$(COLOR_RESET)'
 	$Q retool do govendor sync -v
+	$Q retool do govendor test -i
 	$Q echo -e '$(COLOR_PRINT)Syncing linters...$(COLOR_RESET)'
 	$Q retool do gometalinter --install --update --force
 	$Q echo -e '$(COLOR_SUCCESS)Synchronization done without errors$(COLOR_RESET)'
@@ -77,7 +78,7 @@ vendor_clean:
 	$Q find vendor/* -maxdepth 0 -type d -exec rm -r {} +
 	$Q echo -e '$(COLOR_SUCCESS)Cleaned$(COLOR_RESET)'
 
-build: vendor $(BINARY_NAME)
+build: $(BINARY_NAME)
 
 # Generate configuration file
 config: $(BINARY_NAME)
@@ -125,7 +126,8 @@ test_code:
 	$Q echo -e '$(COLOR_PRINT)Testing code with linters...$(COLOR_RESET)'
 	$Q find . -name vendor -prune -o -name _tools -prune -o -name "*.go" -exec gofmt -d {} \;
 	@[ $(shell find . -name vendor -prune -o -name _tools -prune -o -name "*.go" -exec gofmt -d {} \; | wc -l) = 0 ]
-	$Q retool do gometalinter --config=.gometalinter.json ./...
+	$Q retool do gometalinter --config=.gometalinter.json -d ./...
+	$Q # retool do govendor list -no-status +local | sed -e 's/github.com\/krostar\/nebulo/./g' | xargs gometalinter --config=.gometalinter.json
 	$Q echo -e '$(COLOR_SUCCESS)Done$(COLOR_RESET)'
 
 # Check unit tests

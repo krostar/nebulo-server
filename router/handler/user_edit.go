@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/krostar/nebulo/router/httperror"
+	"github.com/krostar/nebulo-golib/router/httperror"
 	"github.com/labstack/echo"
 
-	cvalidator "github.com/krostar/nebulo/tools/validator"
-	up "github.com/krostar/nebulo/user/provider"
+	cvalidator "github.com/krostar/nebulo-golib/tools/validator"
+	up "github.com/krostar/nebulo-server/user/provider"
 	validator "gopkg.in/validator.v2"
 )
 

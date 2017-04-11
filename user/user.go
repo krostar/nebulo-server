@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/krostar/nebulo/channel"
+	"github.com/krostar/nebulo-server/channel"
 )
 
 var (

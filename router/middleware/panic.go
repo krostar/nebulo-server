@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/krostar/nebulo/log"
-	"github.com/krostar/nebulo/router/handler"
-	"github.com/krostar/nebulo/router/httperror"
+	"github.com/krostar/nebulo-golib/log"
+	"github.com/krostar/nebulo-golib/router/httperror"
+	"github.com/krostar/nebulo-server/router/handler"
 
 	"github.com/labstack/echo"
 )

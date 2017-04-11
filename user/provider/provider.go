@@ -3,8 +3,8 @@ package provider
 import (
 	"crypto/x509"
 
-	gp "github.com/krostar/nebulo/provider"
-	"github.com/krostar/nebulo/user"
+	gp "github.com/krostar/nebulo-golib/provider"
+	"github.com/krostar/nebulo-server/user"
 )
 
 // Provider contains all the methods needed to manage users

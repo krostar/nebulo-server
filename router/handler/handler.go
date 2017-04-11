@@ -3,7 +3,7 @@ package handler
 import (
 	"errors"
 
-	"github.com/krostar/nebulo/user"
+	"github.com/krostar/nebulo-server/user"
 )
 
 var (

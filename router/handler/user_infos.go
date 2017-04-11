@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	"github.com/krostar/nebulo/router/httperror"
+	"github.com/krostar/nebulo-golib/router/httperror"
 	"github.com/labstack/echo"
 )
 

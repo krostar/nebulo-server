@@ -3,7 +3,7 @@ package sql
 import (
 	"fmt"
 
-	"github.com/krostar/nebulo/channel"
+	"github.com/krostar/nebulo-server/channel"
 )
 
 // FindByID is used to find a channel from his ID

@@ -3,7 +3,9 @@ package httperror
 import (
 	"net/http"
 
-	"github.com/krostar/nebulo/log"
+	"github.com/krostar/nebulo-golib/router/httperror"
+
+	"github.com/krostar/nebulo-golib/log"
 	"github.com/labstack/echo"
 )
 
@@ -13,38 +15,38 @@ func ErrorHandler(err error, c echo.Context) {
 		return
 	}
 
-	var errors *HTTPErrors
+	var errors *httperror.HTTPErrors
 
 	switch herr := err.(type) {
 	case *echo.HTTPError: // check for default echo http error
 		// convert them to our custom errors
-		convertFromEchoErrorToHEErrors := map[int]ResponseHandler{
-			http.StatusUnsupportedMediaType:  HTTPUnsupportedMediaTypeError,
-			http.StatusNotFound:              HTTPNotFoundError,
-			http.StatusUnauthorized:          HTTPUnauthorizedError,
-			http.StatusMethodNotAllowed:      HTTPMethodNotAllowedError,
-			http.StatusRequestEntityTooLarge: HTTPRequestEntityTooLargeError,
-			http.StatusBadRequest:            HTTPBadRequestError,
-			http.StatusInternalServerError:   HTTPInternalServerError,
+		convertFromEchoErrorToHEErrors := map[int]httperror.ResponseHandler{
+			http.StatusUnsupportedMediaType:  httperror.HTTPUnsupportedMediaTypeError,
+			http.StatusNotFound:              httperror.HTTPNotFoundError,
+			http.StatusUnauthorized:          httperror.HTTPUnauthorizedError,
+			http.StatusMethodNotAllowed:      httperror.HTTPMethodNotAllowedError,
+			http.StatusRequestEntityTooLarge: httperror.HTTPRequestEntityTooLargeError,
+			http.StatusBadRequest:            httperror.HTTPBadRequestError,
+			http.StatusInternalServerError:   httperror.HTTPInternalServerError,
 		}
-		errors = New(herr.Code, "_", convertFromEchoErrorToHEErrors[herr.Code](nil))
+		errors = httperror.New(herr.Code, "_", convertFromEchoErrorToHEErrors[herr.Code](nil))
 
-	case *HTTPErrors: // then check for multiple errors
+	case *httperror.HTTPErrors: // then check for multiple errors
 		// since it's our error format, we don't need to do anything
 		errors = herr
 
-	case *HTTPError: // then check for single error
+	case *httperror.HTTPError: // then check for single error
 		// create an error list from one error
-		errors = New(herr.Code, "_", herr)
+		errors = httperror.New(herr.Code, "_", herr)
 
 	default: // it's unexpected/unhandled
 		if c.Echo().Debug {
 			// if we are in local developpement, it's acceptable to return the unhandled error
-			errors = New(http.StatusInternalServerError, "_", HTTPInternalServerError(err.Error()))
+			errors = httperror.New(http.StatusInternalServerError, "_", httperror.HTTPInternalServerError(err.Error()))
 		} else {
 			// in production, never return why we have this error, but log it
 			log.Errorln("Unhandled internal error:", err)
-			errors = New(http.StatusInternalServerError, "_", HTTPInternalServerError(nil))
+			errors = httperror.New(http.StatusInternalServerError, "_", httperror.HTTPInternalServerError(nil))
 		}
 	}
 

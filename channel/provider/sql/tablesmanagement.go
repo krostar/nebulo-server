@@ -1,6 +1,6 @@
 package sql
 
-import "github.com/krostar/nebulo/channel"
+import "github.com/krostar/nebulo-server/channel"
 
 // CreateTables create all the required tables for channels
 func (p *Provider) CreateTables() (err error) {

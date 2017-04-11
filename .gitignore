@@ -29,7 +29,7 @@ _testmain.go
 
 # vendors
 /_tools/
-/vendor/
+/vendor/*
 !/vendor/vendor.json
 
 # binaries and build

@@ -1,7 +1,5 @@
 {
-    "Concurrency": 8,
-    "Deadline": "10m",
-    "DisableAll": true,
+    "Deadline": "30m",
     "Enable": [
         "interfacer",
         "unused",

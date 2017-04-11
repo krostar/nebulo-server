@@ -3,9 +3,9 @@ package sql
 import (
 	"fmt"
 
-	"github.com/krostar/nebulo/channel"
-	"github.com/krostar/nebulo/channel/provider"
-	gp "github.com/krostar/nebulo/provider"
+	gp "github.com/krostar/nebulo-golib/provider"
+	"github.com/krostar/nebulo-server/channel"
+	"github.com/krostar/nebulo-server/channel/provider"
 )
 
 // Provider implements the methods needed to manage channels

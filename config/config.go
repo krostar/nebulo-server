@@ -6,10 +6,10 @@ import (
 	"io/ioutil"
 	"reflect"
 
-	"github.com/krostar/nebulo/env"
-	gp "github.com/krostar/nebulo/provider"
-	"github.com/krostar/nebulo/tools"
-	_ "github.com/krostar/nebulo/tools/validator" // used to init custom validators before using them
+	gp "github.com/krostar/nebulo-golib/provider"
+	"github.com/krostar/nebulo-golib/tools"
+	"github.com/krostar/nebulo-server/env"
+	_ "github.com/krostar/nebulo-server/validator" // used to init custom validators before using them
 )
 
 type globalOptions struct {

@@ -1,13 +1,11 @@
 language: go
 
-sudo: required
-
 go:
   - 1.8.x
 
 env:
   global:
-    secure: a9/XUeUzNTB8GzVi5Y2We8H+5kpYofetbuYFsAHPq78RuwSM+MlQoVPOF9ox0y8SFcBrVNOuK9vFaTKAYJ9Cl8jaTywiPaMFmMw8+FdTZeAfKuOiPT2h2m1ozJ4o+Gqfk7r93kAgMpvHBaDfDFxR3ls2hoCWs8T9WVsgE1CMe992GO4Ba8wrsghZresdAdIHXJtM+TA5Nx++9x4DcgPH4EVXYXVRb33dH4TfGx4YiBj2nS4ayGmKCD/fVfasDa8wCMDWp9KAWQmHOHUYLJYoAuNH+VfoR59iCUrpRqGA8EsjZKldDPlg2a+pqP21rbHekvAbIQ5kfHVgHrSQWRfDBYhZ6Z3cvhu0sfv4MvA+leLpEGBSs6v2y7qker0U2uR3nBzbUskJYFuGWh3Wt0GndAeYppdUv2Yy/kw98Dfi0Vs3b/RLM0KhId+oNWtmzhUQI+/c0mOte3bYa9EH1WHZfNE6H5PEZBrKN27BbHzelLBgb8D297fmN1HXvisw10ZZGoA3DSkF13kb1xx6vyDy56/QEHU+iyodw6g+gwYMrT8g5uAVJ3PUxRLJPgw+rIzx+hjz0XH0kzirejGq86/S7kjPoVSsdC1GFZwCfsKB/+f7B2+TCyirBZAsYqblGFO2F106YZwLwbG8vo0JtQaeHEMcjbQ8F4rxA9OgPhOFMKs=
+    secure: Tq0S+RXxjgKX2Iv5c3/v0uH43X55ZFvuluXAxh8MnpmMwRy346oYqwq5PdvTTh0AXN1/7cM5g0+LDyQ7YBHzeIE4C222lNDap9OxqsbD/GUrB9gOj8h0aEopziyb6dx9YTwi+Rw7DCsQHH7czXKGdDkYqSweRnQ/Cvy7xcSHoLXQFufyaaziLacvHUgRyTTTs+4DJk5ZwNGXSkShVpLWQU/PVtCZFCGvY8/YLWqL7jr7Ph7XRSeGSZqZSJ2XDJ8PezwfY2FHyxgKdn3Q0dLXIcgdWG4Yy6ZEhnY+QROiqxOFt1QnJLDBJUuo/NruKFv8+7+GTR4shfzqEB8FDQRLOrCAmz2379ARcbbGvDXGK3imPOpd5tcAYSGiyfq/byE/K8Aedq8Zq5Trb4Tf6M4yOqwSjulFo2dKscYQQC+15F9Xii1oEV3E3V2ncoHfIdM5MyLaeQPa/G5xQYDeEX7ssiMkst21d1XPBr/PgnAG2WxjOQVtFZh3E6i5NnXw68XNeX0WjRWwyr3CMFOa0nADdhhHVPfDw++AOwoR+eElsZEoCX16zKnpmvT0hw36P2GH+mHNZZv06djN/ekEFUy3bMAIMoHfTWlb4Kxu5PybkCWvM25YG3lf0D1kHfOHrHnKQ6RV+cqRtav1jmqMg9tpg5mTID3OMMtauLtHEwhKRVE=
 
 before_install:
   - echo "before_install step"
@@ -26,8 +24,8 @@ install:
 
 script:
   - echo "script step"
-  - ([ -n "${TRAVIS_TAG}" ] && make release CI=1 TAG=${TRAVIS_TAG}) || make test CI=1
-  - make coverage
+  - ([ -n "${TRAVIS_TAG}" ] && travis_wait 30 make release CI=1 TAG=${TRAVIS_TAG}) || travis_wait 30 make test CI=1
+  - make coverage CI=1
   - retool do goveralls -coverprofile=coverage/coverage.out -service=travis-ci
 
 deploy:

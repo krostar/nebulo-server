@@ -9,10 +9,10 @@ import (
 
 	cli "gopkg.in/urfave/cli.v2"
 
-	"github.com/krostar/nebulo/config"
-	"github.com/krostar/nebulo/log"
-	"github.com/krostar/nebulo/router"
-	"github.com/krostar/nebulo/router/handler"
+	"github.com/krostar/nebulo-golib/log"
+	"github.com/krostar/nebulo-server/config"
+	"github.com/krostar/nebulo-server/router"
+	"github.com/krostar/nebulo-server/router/handler"
 )
 
 var (

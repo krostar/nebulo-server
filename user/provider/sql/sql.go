@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/krostar/nebulo/channel/provider"
-	gp "github.com/krostar/nebulo/provider"
-	"github.com/krostar/nebulo/user"
+	gp "github.com/krostar/nebulo-golib/provider"
+	"github.com/krostar/nebulo-server/channel/provider"
+	"github.com/krostar/nebulo-server/user"
 )
 
 // Provider implements the methods needed to manage users

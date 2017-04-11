@@ -1,6 +1,6 @@
 package user
 
-import "github.com/krostar/nebulo/channel"
+import "github.com/krostar/nebulo-server/channel"
 
 // ChannelMembership is the link between a channel and a user
 type ChannelMembership struct {

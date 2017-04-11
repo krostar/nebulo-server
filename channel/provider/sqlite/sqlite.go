@@ -1,9 +1,9 @@
 package sqlite
 
 import (
-	"github.com/krostar/nebulo/channel/provider"
-	dp "github.com/krostar/nebulo/channel/provider/sql"
-	gp "github.com/krostar/nebulo/provider"
+	gp "github.com/krostar/nebulo-golib/provider"
+	"github.com/krostar/nebulo-server/channel/provider"
+	dp "github.com/krostar/nebulo-server/channel/provider/sql"
 )
 
 // Provider implements the methods needed to manage a channel

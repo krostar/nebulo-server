@@ -4,7 +4,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/krostar/nebulo/log"
+	"github.com/krostar/nebulo-golib/log"
 	"github.com/labstack/echo"
 )
 
