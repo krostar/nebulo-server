@@ -58,6 +58,20 @@ $(BINARY_NAME):
 	$Q go build -i -v -o $(DIR_BUILD)/bin/$(BINARY_NAME) $(BUILD_FLAGS)
 	$Q echo -e '$(COLOR_SUCCESS)Compilation done without errors$(COLOR_RESET)'
 
+# Generate configuration file
+config: $(BINARY_NAME)
+	$Q echo -e '$(COLOR_PRINT)Generating $(CONFIGURATION_FILE)...$(COLOR_RESET)'
+	$Q $(shell $(DIR_BUILD)/bin/$(BINARY_NAME) -v quiet config-gen -d $(CONFIGURATION_FILE))
+	$Q echo -e '$(COLOR_SUCCESS)Compilation done without errors$(COLOR_RESET)'
+
+build: $(BINARY_NAME)
+
+# Compile for current os/arch and run binary
+run: $(BINARY_NAME)
+	$Q echo -e '$(COLOR_PRINT)Running $(BINARY_NAME):$(COLOR_RESET)'
+	$Q $(DIR_BUILD)/bin/$(BINARY_NAME) ${ARGS}
+	$Q echo -e '$(COLOR_PRINT)Terminated$(COLOR_RESET)'
+
 # Synchronize vendors and tools
 vendor:
 	$Q echo -e '$(COLOR_PRINT)Syncing tools...$(COLOR_RESET)'
@@ -70,7 +84,7 @@ vendor:
 	$Q echo -e '$(COLOR_SUCCESS)Synchronization done without errors$(COLOR_RESET)'
 
 # Synchronize vendors and tools
-vendor_clean:
+vendor-clean:
 	$Q echo -e '$(COLOR_PRINT)Cleaning vendors...$(COLOR_RESET)'
 	$Q echo -e '$(COLOR_PRINT)Cleaning vendored tools...$(COLOR_RESET)'
 	$Q rm -rf _tools
@@ -78,73 +92,52 @@ vendor_clean:
 	$Q find vendor/* -maxdepth 0 -type d -exec rm -r {} +
 	$Q echo -e '$(COLOR_SUCCESS)Cleaned$(COLOR_RESET)'
 
-build: $(BINARY_NAME)
-
-# Generate configuration file
-config: $(BINARY_NAME)
-	$Q echo -e '$(COLOR_PRINT)Generating $(CONFIGURATION_FILE)...$(COLOR_RESET)'
-	$Q $(shell $(DIR_BUILD)/bin/$(BINARY_NAME) -v quiet config-gen -d $(CONFIGURATION_FILE))
-	$Q echo -e '$(COLOR_SUCCESS)Compilation done without errors$(COLOR_RESET)'
-
-# Compile for current os/arch and run binary
-run: $(BINARY_NAME)
-	$Q echo -e '$(COLOR_PRINT)Running $(BINARY_NAME):$(COLOR_RESET)'
-	$Q $(DIR_BUILD)/bin/$(BINARY_NAME) ${ARGS}
-	$Q echo -e '$(COLOR_PRINT)Terminated$(COLOR_RESET)'
-
 # Remove all non-essentials directories and files
-clean: vendor_clean
+clean: vendor-clean
 	$Q echo -e '$(COLOR_PRINT)Cleaning...$(COLOR_RESET)'
 	$Q rm -rf $(DIR_BUILD) $(DIR_RELEASE) $(DIR_RELEASE_TMP) $(DIR_COVERAGE)
 	$Q echo -e '$(COLOR_SUCCESS)Cleaned$(COLOR_RESET)'
 
 # Generate the API documentation
-doc_api:
+doc-api:
 	$Q echo -e '$(COLOR_PRINT)Generating apidoc...$(COLOR_RESET)'
 	$Q mkdir -p $(DIR_BUILD)/doc/apidoc
 	$Q apidoc -i ./ -o $(DIR_BUILD)/doc/apidoc/ -f ".*\\.go$$"
 	$Q echo -e '$(COLOR_SUCCESS)Generated$(COLOR_RESET)'
 
 # Generate all kind of documentation
-doc: doc_api
-
-# Run code documentation server
-godoc:
-	$Q echo -e '$(COLOR_PRINT)Open a web browser and load 127.0.0.1:6060 ...$(COLOR_RESET)'
-	$Q godoc -http=:6060 -index
-	$Q echo -e '$(COLOR_PRINT)Terminated$(COLOR_RESET)'
+doc: doc-api
 
 # Check for useless and missing dependencies
-test_dependencies:
+test-dependencies:
 	$Q echo -e '$(COLOR_PRINT)Testing dependencies...$(COLOR_RESET)'
 	$Q retool do govendor list +unused +missing
-	@[ "$(shell retool do govendor list +unused +missing | wc -l)" = "0" ]
+	@[ $(shell retool do govendor list +unused +missing | wc -l) = 0 ]
 	$Q echo -e '$(COLOR_SUCCESS)Done$(COLOR_RESET)'
 
 # Check syntax, format, useless, and non-optimized code
-test_code:
+test-code:
 	$Q echo -e '$(COLOR_PRINT)Testing code with linters...$(COLOR_RESET)'
 	$Q find . -name vendor -prune -o -name _tools -prune -o -name "*.go" -exec gofmt -d {} \;
 	@[ $(shell find . -name vendor -prune -o -name _tools -prune -o -name "*.go" -exec gofmt -d {} \; | wc -l) = 0 ]
 	$Q retool do gometalinter --config=.gometalinter.json -d ./...
-	$Q # retool do govendor list -no-status +local | sed -e 's/github.com\/krostar\/nebulo/./g' | xargs gometalinter --config=.gometalinter.json
 	$Q echo -e '$(COLOR_SUCCESS)Done$(COLOR_RESET)'
 
 # Check unit tests
-test_unit:
+test-unit:
 	$Q echo -e '$(COLOR_PRINT)Testing code with unit tests...$(COLOR_RESET)'
 	$Q retool do govendor test +local -v -timeout 5s
 	$Q echo -e '$(COLOR_SUCCESS)Done$(COLOR_RESET)'
 
 # TODOs should never exist
-test_todo:
+test-todo:
 	$Q echo -e '$(COLOR_PRINT)Testing presence of TODOs in code...$(COLOR_RESET)'
 	$Q find . -name vendor -prune -o -name _tools -prune -o -name "*.go" -exec grep -Hn "//TODO:" {} \;
-	@[ "$(shell find . -name vendor -prune -o -name _tools -prune -o -name "*.go" -exec grep -Hn "//TODO:" {} \; | wc -l)" = "0" ]
+	@[ $(shell find . -name vendor -prune -o -name _tools -prune -o -name "*.go" -exec grep -Hn "//TODO:" {} \; | wc -l) = 0 ]
 	$Q echo -e '$(COLOR_SUCCESS)Done$(COLOR_RESET)'
 
 # Check all kind of tests
-test: test_dependencies test_code test_unit test_todo
+test: test-dependencies test-code test-unit test-todo
 
 # Compute coverage and create coverage files
 coverage:
@@ -160,11 +153,8 @@ coverage:
 	$Q go tool cover -func=$(DIR_COVERAGE)/coverage.out
 	$Q echo -e '$(COLOR_SUCCESS)Done$(COLOR_RESET)'
 
-coverage_show: coverage
-	$Q go tool cover -html=$(DIR_COVERAGE)/coverage.out
-
 # Compile and save all necessaries file for each couple os/arch
-release_build: test coverage config
+release-build: test coverage config
 	$Q echo -e '$(COLOR_PRINT)List of files beeing compiled:$(COLOR_RESET)'
 	$Q go list -f '{{.GoFiles}}' ./...
 	$Q mkdir -p $(DIR_BUILD)/bin
@@ -179,7 +169,7 @@ release_build: test coverage config
 
 # Generate a release ; multiple files are going to be generated:
 #	a documentation archive, a runnable environment archive for each couple os/arch
-release: config clean doc release_build
+release: config clean doc release-build
 	$Q [ -n "$(TAG)" ] || (echo "Please add the release tag with the TAG=x.x.x environment variable" && false)
 	$Q mkdir -p $(DIR_RELEASE) $(DIR_RELEASE_TMP)/$(BINARY_NAME)
 	$Q cp $(DIR_BUILD)/bin/* $(DIR_RELEASE_TMP)/$(BINARY_NAME)
@@ -192,4 +182,4 @@ release: config clean doc release_build
 	done
 
 
-.PHONY: all $(BINARY_NAME) vendor build config run clean doc_api doc godoc test_dependencies test_code test_unit test_todo test coverage coverage_show release_build release
+.PHONY: all $(BINARY_NAME) config build run vendor vendor-clean clean doc-api doc test-dependencies test-code test-unit test-todo test coverage release-build release

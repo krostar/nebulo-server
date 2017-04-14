@@ -7,24 +7,12 @@ env:
   global:
     secure: Tq0S+RXxjgKX2Iv5c3/v0uH43X55ZFvuluXAxh8MnpmMwRy346oYqwq5PdvTTh0AXN1/7cM5g0+LDyQ7YBHzeIE4C222lNDap9OxqsbD/GUrB9gOj8h0aEopziyb6dx9YTwi+Rw7DCsQHH7czXKGdDkYqSweRnQ/Cvy7xcSHoLXQFufyaaziLacvHUgRyTTTs+4DJk5ZwNGXSkShVpLWQU/PVtCZFCGvY8/YLWqL7jr7Ph7XRSeGSZqZSJ2XDJ8PezwfY2FHyxgKdn3Q0dLXIcgdWG4Yy6ZEhnY+QROiqxOFt1QnJLDBJUuo/NruKFv8+7+GTR4shfzqEB8FDQRLOrCAmz2379ARcbbGvDXGK3imPOpd5tcAYSGiyfq/byE/K8Aedq8Zq5Trb4Tf6M4yOqwSjulFo2dKscYQQC+15F9Xii1oEV3E3V2ncoHfIdM5MyLaeQPa/G5xQYDeEX7ssiMkst21d1XPBr/PgnAG2WxjOQVtFZh3E6i5NnXw68XNeX0WjRWwyr3CMFOa0nADdhhHVPfDw++AOwoR+eElsZEoCX16zKnpmvT0hw36P2GH+mHNZZv06djN/ekEFUy3bMAIMoHfTWlb4Kxu5PybkCWvM25YG3lf0D1kHfOHrHnKQ6RV+cqRtav1jmqMg9tpg5mTID3OMMtauLtHEwhKRVE=
 
-before_install:
-  - echo "before_install step"
-  - lsb_release -a
-  - which go
-  - whereis go
-  - go version
-  - go env
-  - env
-  - pwd
-
 install:
-  - echo "install step"
   - go get github.com/twitchtv/retool
   - make vendor
 
 script:
-  - echo "script step"
-  - ([ -n "${TRAVIS_TAG}" ] && travis_wait 30 make release CI=1 TAG=${TRAVIS_TAG}) || travis_wait 30 make test CI=1
+  - ([ -n "${TRAVIS_TAG}" ] && make release CI=1 TAG=${TRAVIS_TAG}) || make test CI=1
   - make coverage CI=1
   - retool do goveralls -coverprofile=coverage/coverage.out -service=travis-ci
 
