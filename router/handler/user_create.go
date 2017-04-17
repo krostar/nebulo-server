@@ -138,7 +138,7 @@ func loadCertificate(requestBody io.Reader, contentLengthHeader string) (clientC
 	}
 
 	// load certificate authority
-	caCert, caPrivateKey, err = cert.CAFromFiles(
+	caCert, caPrivateKey, err = cert.CertAndKeyFromFiles(
 		config.Config.Run.TLS.ClientsCA.Cert,
 		config.Config.Run.TLS.ClientsCA.Key,
 		[]byte(config.Config.Run.TLS.ClientsCA.KeyPassword),

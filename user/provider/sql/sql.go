@@ -9,6 +9,7 @@ import (
 	gp "github.com/krostar/nebulo-golib/provider"
 	"github.com/krostar/nebulo-server/channel/provider"
 	"github.com/krostar/nebulo-server/user"
+	"github.com/labstack/gommon/log"
 )
 
 // Provider implements the methods needed to manage users
@@ -26,8 +27,9 @@ func (p *Provider) Login(u *user.User) (err error) {
 
 	now := time.Now()
 
-	updates := user.User{LoginLast: now}
-	if u.LoginFirst.IsZero() {
+	updates := user.User{LoginLast: now.UTC()}
+	if u.LoginFirst.UTC() == time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC) {
+		log.Debugf("updates.loginFirst is zero: %v", u.LoginFirst)
 		updates.LoginFirst = now
 	}
 	if err = p.DB.Model(u).Updates(updates).Error; err != nil {
@@ -55,11 +57,6 @@ func (p *Provider) Create(userToAdd *user.User) (u *user.User, err error) {
 	if err != user.ErrNotFound {
 		return nil, errors.New("an user already exist with this public key")
 	}
-
-	userToAdd.Signup = time.Now()
-	// TODO: change that
-	userToAdd.LoginFirst = time.Unix(0, 0)
-	userToAdd.LoginLast = time.Unix(0, 0)
 
 	if err = p.DB.Create(userToAdd).Error; err != nil {
 		return nil, fmt.Errorf("unable to insert user: %v", err)

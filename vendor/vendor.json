@@ -23,72 +23,72 @@
 		{
 			"checksumSHA1": "U9sENacKzuFqYduLZG2ah6iVN00=",
 			"path": "github.com/krostar/nebulo-golib/log",
-			"revision": "bbcda33d5a0650a61a2e1fa21b9f6ad02c7a4df5",
-			"revisionTime": "2017-04-11T02:29:45Z",
+			"revision": "da9af87602f0234d6cfa9867eef65ec05b0655d7",
+			"revisionTime": "2017-04-17T04:19:49Z",
 			"version": "dev",
 			"versionExact": "dev"
 		},
 		{
 			"checksumSHA1": "P3kZWGaMBPdg3F0FzQes25Xe6VY=",
 			"path": "github.com/krostar/nebulo-golib/provider",
-			"revision": "bbcda33d5a0650a61a2e1fa21b9f6ad02c7a4df5",
-			"revisionTime": "2017-04-11T02:29:45Z",
+			"revision": "da9af87602f0234d6cfa9867eef65ec05b0655d7",
+			"revisionTime": "2017-04-17T04:19:49Z",
 			"version": "dev",
 			"versionExact": "dev"
 		},
 		{
-			"checksumSHA1": "pBXwgXEBO1d9T0VNgT56ycJklSU=",
+			"checksumSHA1": "k84wSywlbosEgm1JpWzLpu3l7oA=",
 			"path": "github.com/krostar/nebulo-golib/provider/mysql",
-			"revision": "bbcda33d5a0650a61a2e1fa21b9f6ad02c7a4df5",
-			"revisionTime": "2017-04-11T02:29:45Z",
+			"revision": "da9af87602f0234d6cfa9867eef65ec05b0655d7",
+			"revisionTime": "2017-04-17T04:19:49Z",
 			"version": "dev",
 			"versionExact": "dev"
 		},
 		{
 			"checksumSHA1": "BqKcTkOwZvmJLHvatmWTqWKnRJM=",
 			"path": "github.com/krostar/nebulo-golib/provider/orm",
-			"revision": "bbcda33d5a0650a61a2e1fa21b9f6ad02c7a4df5",
-			"revisionTime": "2017-04-11T02:29:45Z",
+			"revision": "da9af87602f0234d6cfa9867eef65ec05b0655d7",
+			"revisionTime": "2017-04-17T04:19:49Z",
 			"version": "dev",
 			"versionExact": "dev"
 		},
 		{
 			"checksumSHA1": "YXteNHrE+YaD+4Mt92v5EYViauw=",
 			"path": "github.com/krostar/nebulo-golib/provider/sqlite",
-			"revision": "bbcda33d5a0650a61a2e1fa21b9f6ad02c7a4df5",
-			"revisionTime": "2017-04-11T02:29:45Z",
+			"revision": "da9af87602f0234d6cfa9867eef65ec05b0655d7",
+			"revisionTime": "2017-04-17T04:19:49Z",
 			"version": "dev",
 			"versionExact": "dev"
 		},
 		{
 			"checksumSHA1": "d2mxU4ftjUXG9jHULbwW8RI4sjQ=",
 			"path": "github.com/krostar/nebulo-golib/router/httperror",
-			"revision": "bbcda33d5a0650a61a2e1fa21b9f6ad02c7a4df5",
-			"revisionTime": "2017-04-11T02:29:45Z",
+			"revision": "da9af87602f0234d6cfa9867eef65ec05b0655d7",
+			"revisionTime": "2017-04-17T04:19:49Z",
 			"version": "dev",
 			"versionExact": "dev"
 		},
 		{
 			"checksumSHA1": "Ev7xGi5VIl+CL1Io5Q1Ex61AAdM=",
 			"path": "github.com/krostar/nebulo-golib/tools",
-			"revision": "bbcda33d5a0650a61a2e1fa21b9f6ad02c7a4df5",
-			"revisionTime": "2017-04-11T02:29:45Z",
+			"revision": "da9af87602f0234d6cfa9867eef65ec05b0655d7",
+			"revisionTime": "2017-04-17T04:19:49Z",
 			"version": "dev",
 			"versionExact": "dev"
 		},
 		{
-			"checksumSHA1": "B6w6WMzdFAxutAkUAAsm9FMYFDY=",
+			"checksumSHA1": "H1Nqx7MaiNRv8M7ylX+8tvOdFyU=",
 			"path": "github.com/krostar/nebulo-golib/tools/cert",
-			"revision": "bbcda33d5a0650a61a2e1fa21b9f6ad02c7a4df5",
-			"revisionTime": "2017-04-11T02:29:45Z",
+			"revision": "da9af87602f0234d6cfa9867eef65ec05b0655d7",
+			"revisionTime": "2017-04-17T04:19:49Z",
 			"version": "dev",
 			"versionExact": "dev"
 		},
 		{
 			"checksumSHA1": "l/gJu7XY8SeUB4oQ3xQSZGOUo/8=",
 			"path": "github.com/krostar/nebulo-golib/tools/validator",
-			"revision": "bbcda33d5a0650a61a2e1fa21b9f6ad02c7a4df5",
-			"revisionTime": "2017-04-11T02:29:45Z",
+			"revision": "da9af87602f0234d6cfa9867eef65ec05b0655d7",
+			"revisionTime": "2017-04-17T04:19:49Z",
 			"version": "dev",
 			"versionExact": "dev"
 		},

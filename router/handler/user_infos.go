@@ -3,6 +3,8 @@ package handler
 import (
 	"net/http"
 
+	"git.epac.se/mizy/server-api/log"
+
 	"github.com/krostar/nebulo-golib/router/httperror"
 	"github.com/labstack/echo"
 )
@@ -38,6 +40,8 @@ func UserInfos(c echo.Context) (err error) {
 	if err != nil {
 		return httperror.UserNotFound()
 	}
+
+	log.Debugln(u.Signup)
 
 	return c.JSONPretty(http.StatusOK, u, "    ")
 }

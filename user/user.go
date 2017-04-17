@@ -6,8 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"time"
-
-	"github.com/krostar/nebulo-server/channel"
 )
 
 var (
@@ -24,10 +22,9 @@ type User struct {
 	PublicKeyAlgorithm x509.PublicKeyAlgorithm `json:"-" gorm:"column:key_public_algorithm; type:tinyint(1); not null"`
 	FingerPrint        string                  `json:"key_fingerprint" gorm:"column:key_fingerprint; size:51; not null"`
 	DisplayName        string                  `json:"display_name" gorm:"column:display_name; size:42" validator-update:"string=length:max|42"`
-	Signup             time.Time               `json:"signup" gorm:"column:signup; notnull"`
-	LoginFirst         time.Time               `json:"login_first" gorm:"column:login_first; notnull"`
-	LoginLast          time.Time               `json:"login_last" gorm:"column:login_last; notnull"`
-	Channels           []*channel.Channel      `json:"channels" gorm:"many2many:channel_memberships"`
+	Signup             time.Time               `json:"signup" gorm:"column:signup; not null" sql:"DEFAULT:current_timestamp"`
+	LoginFirst         time.Time               `json:"login_first" gorm:"column:login_first; not null" sql:"DEFAULT:'1970-01-01 00:00:00'"`
+	LoginLast          time.Time               `json:"login_last" gorm:"column:login_last; not null" sql:"DEFAULT:'1970-01-01 00:00:00'"`
 }
 
 // Repr return an uniq representation of a given user

@@ -29,10 +29,11 @@ func Init() error {
 // DropTables delete all the channels tables
 func (p *Provider) DropTables() (err error) {
 	c := &channel.Channel{}
+	cum := &channel.UserMembership{}
 
 	err = gp.RP.DB.Exec("SET FOREIGN_KEY_CHECKS=0;").Error
 	if err == nil {
-		err = p.DB.DropTableIfExists(c).Error
+		err = p.DB.DropTableIfExists(c, cum).Error
 	}
 	if err == nil {
 		err = gp.RP.DB.Exec("SET FOREIGN_KEY_CHECKS=1;").Error
