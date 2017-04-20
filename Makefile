@@ -120,7 +120,7 @@ test-code:
 	$Q echo -e '$(COLOR_PRINT)Testing code with linters...$(COLOR_RESET)'
 	$Q find . -name vendor -prune -o -name _tools -prune -o -name "*.go" -exec gofmt -d {} \;
 	@[ $(shell find . -name vendor -prune -o -name _tools -prune -o -name "*.go" -exec gofmt -d {} \; | wc -l) = 0 ]
-	$Q retool do gometalinter --config=.gometalinter.json -d ./...
+	$Q retool do gometalinter --config=.gometalinter.json ./...
 	$Q echo -e '$(COLOR_SUCCESS)Done$(COLOR_RESET)'
 
 # Check unit tests

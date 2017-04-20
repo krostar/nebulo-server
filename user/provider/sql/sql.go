@@ -1,7 +1,6 @@
 package sql
 
 import (
-	"crypto/x509"
 	"errors"
 	"fmt"
 	"time"
@@ -46,11 +45,7 @@ func (p *Provider) Create(userToAdd *user.User) (u *user.User, err error) {
 	}
 
 	// check if user exist
-	userPublicKey, err := x509.ParsePKIXPublicKey(userToAdd.PublicKeyDER)
-	if err != nil {
-		return nil, fmt.Errorf("unable to parse user public key: %v", err)
-	}
-	_, err = p.FindByPublicKey(userToAdd.PublicKeyAlgorithm, userPublicKey)
+	_, err = p.FindByPublicKeyDER(userToAdd.PublicKeyDER)
 	if err != nil && err != user.ErrNotFound {
 		return nil, fmt.Errorf("unable to find user: %v", err)
 	}

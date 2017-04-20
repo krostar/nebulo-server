@@ -5,15 +5,16 @@ import (
 	"crypto/x509"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net"
 	"strconv"
 
+	"github.com/labstack/echo"
+	echolog "github.com/labstack/gommon/log"
+
 	"github.com/krostar/nebulo-server/env"
 	"github.com/krostar/nebulo-server/router/handler"
-	chttperror "github.com/krostar/nebulo-server/router/httperror"
+	"github.com/krostar/nebulo-server/router/httperror"
 	nmiddleware "github.com/krostar/nebulo-server/router/middleware"
-	"github.com/labstack/echo"
 )
 
 var (
@@ -34,7 +35,8 @@ func setupRouter(environment *env.Config) {
 		router.Debug = false
 	}
 
-	router.HTTPErrorHandler = chttperror.ErrorHandler
+	router.Logger.SetLevel(echolog.OFF)
+	router.HTTPErrorHandler = httperror.ErrorHandler
 	router.Server.Addr = environment.Address + ":" + strconv.Itoa(environment.Port)
 
 	setupMiddlewares()
@@ -74,7 +76,7 @@ func createTLSConfig(certFile string, keyFile string, clientCAFilepath string) (
 }
 
 func setupMiddlewares() {
-	router.Pre(nmiddleware.Recover()) // in case of panic, recover and don't quit
+	router.Use(nmiddleware.Recover()) // in case of panic, recover and don't quit
 	router.Use(nmiddleware.Misc())
 	router.Use(nmiddleware.Log())
 
@@ -86,10 +88,10 @@ func setupRoutes() {
 
 	// domain/user/...
 	user := router.Group("/user")
-	user.GET("/", handler.UserInfos, puMdw["auth"])     //user profile infos
-	user.POST("/", handler.UserCreate)                  //create user profile
-	user.PUT("/", handler.UserEdit, puMdw["auth"])      //edit user profile
-	user.DELETE("/", handler.UserDelete, puMdw["auth"]) //delete user profile
+	user.GET("", handler.UserInfos, puMdw["auth"])     //user profile infos
+	user.POST("", handler.UserCreate)                  //create user profile
+	user.PUT("", handler.UserEdit, puMdw["auth"])      //edit user profile
+	user.DELETE("", handler.UserDelete, puMdw["auth"]) //delete user profile
 
 	// domain/chans
 	router.GET("/chans", handler.ChansList, puMdw["auth"]) //list all channels
@@ -98,8 +100,8 @@ func setupRoutes() {
 	// identified users are required to make these calls
 	//     that's why everything using channel group use auth middleware
 	channel := router.Group("/chan", puMdw["auth"])
-	channel.GET("/:chan", handler.ChanInfos) //get info for a specific channel
-	channel.POST("/", handler.ChanCreate)    //add a new channel
+	// channel.GET("/:chan", handler.ChanInfos) //get info for a specific channel
+	channel.POST("", handler.ChanCreate) //add a new channel
 	// channel.PUT("/:chan", handler.ChanEdit)      //edit info of a specific channel
 	// channel.DELETE("/:chan", handler.ChanDelete) //delete a specific channel
 	//
@@ -117,8 +119,6 @@ func setupRoutes() {
 
 func run(environment *env.Config, tlsConfig *tls.Config) error {
 	setupRouter(environment)
-	router.Server.ErrorLog = log.New(ioutil.Discard, "", 0)
-	router.Server.Addr = environment.Address + ":" + strconv.Itoa(environment.Port)
 
 	listener, err := net.Listen("tcp4", router.Server.Addr)
 	if err != nil {

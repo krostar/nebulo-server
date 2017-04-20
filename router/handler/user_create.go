@@ -55,14 +55,14 @@ func UserCreate(c echo.Context) (err error) {
 		return err
 	}
 
+	// create a user with this public key
 	storablePublicKey, err := x509.MarshalPKIXPublicKey(clientCSR.PublicKey)
 	if err != nil {
 		return httperror.HTTPInternalServerError(fmt.Errorf("unable to marshal public key: %v", err))
 	}
 	newUser := &user.User{
-		PublicKeyDER:       storablePublicKey,
-		PublicKeyAlgorithm: clientCSR.PublicKeyAlgorithm,
-		FingerPrint:        cert.FingerprintSHA256(storablePublicKey),
+		PublicKeyDER: storablePublicKey,
+		FingerPrint:  cert.FingerprintSHA256(storablePublicKey),
 	}
 	if _, err = up.P.Create(newUser); err != nil {
 		return httperror.HTTPInternalServerError(fmt.Errorf("unable to register user in user provider: %v", err))
@@ -87,7 +87,7 @@ func signCertificate(requestBody io.Reader, contentLengthHeader string) (clientC
 	}
 
 	// check if a user exist with this public key
-	if _, err = up.P.FindByPublicKey(clientCSR.PublicKeyAlgorithm, clientCSR.PublicKey); err == nil {
+	if _, err = up.P.FindByPublicKey(clientCSR.PublicKey); err == nil {
 		return nil, nil, httperror.UserExist()
 	} else if err != nil && err != user.ErrNotFound {
 		return nil, nil, httperror.HTTPInternalServerError(err)
@@ -116,7 +116,7 @@ func signCertificate(requestBody io.Reader, contentLengthHeader string) (clientC
 }
 
 // get client certificate request from body
-func loadCertificate(requestBody io.Reader, contentLengthHeader string) (clientCSR *x509.CertificateRequest, caCert *x509.Certificate, caPrivateKey crypto.Signer, err error) {
+func loadCertificate(requestBody io.Reader, contentLengthHeader string) (clientCSR *x509.CertificateRequest, caCert *x509.Certificate, caPrivateKey crypto.PrivateKey, err error) {
 	// check body
 	bodyLength, err := strconv.ParseInt(contentLengthHeader, 10, 64)
 	if err != nil {

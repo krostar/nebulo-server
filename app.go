@@ -42,7 +42,7 @@ func main() {
 				}
 			}
 			return nil
-		}, Flags: []cli.Flag{
+		}, Flags: []cli.Flag{ // global flags (configuration and log purpose)
 			&cli.StringFlag{
 				Name:    "config",
 				Aliases: []string{"c"},
@@ -61,7 +61,7 @@ func main() {
 				Destination: &config.CLI.Global.Logging.Verbose,
 			},
 		}, Commands: []*cli.Command{
-			&cli.Command{
+			&cli.Command{ // run command, start the server
 				Name:        "run",
 				Usage:       "start the nebulo api server",
 				Description: "required parameters description starts with a wildcard (*)",
@@ -120,7 +120,7 @@ func main() {
 					},
 				}, Before: beforeCommandWhoNeedMergeConfiguration,
 				Action: commandRun,
-			}, &cli.Command{
+			}, &cli.Command{ // config-gen command, generate the configuration
 				Name:  "config-gen",
 				Usage: "generate a configuration file and quit",
 				Flags: []cli.Flag{
@@ -132,7 +132,7 @@ func main() {
 					},
 				}, Before: beforeEveryCommand,
 				Action: commandConfigGen,
-			}, &cli.Command{
+			}, &cli.Command{ // version command output the version of the server
 				Name:   "version",
 				Usage:  "display the version",
 				Before: beforeEveryCommand,
@@ -147,6 +147,7 @@ func main() {
 }
 
 func beforeEveryCommand(c *cli.Context) (err error) {
+	// we don't want useless arguments (non parsed arguments)
 	if c.NArg() != 0 {
 		return fmt.Errorf("unknown remaining args: %q", strings.Join(c.Args().Slice(), " "))
 	}
@@ -157,6 +158,8 @@ func beforeCommandWhoNeedMergeConfiguration(c *cli.Context) (err error) {
 	if err = beforeEveryCommand(c); err != nil {
 		return err
 	}
+
+	// merge configuration from cli and configuration file
 	config.Merge()
 	if err = config.Apply(); err != nil {
 		return fmt.Errorf("configuration application failed: %v", err)

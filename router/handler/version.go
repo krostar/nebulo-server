@@ -6,7 +6,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-type build struct {
+type buildResponse struct {
 	BuildVersion string `json:"build_version"`
 	BuildTime    string `json:"build_time"`
 }
@@ -40,9 +40,8 @@ var (
  * @apiError (Errors 5XX) {json} 500 Internal server error: server failed to handle the request
  */
 func Version(c echo.Context) error {
-	b := build{
+	return c.JSONPretty(http.StatusOK, buildResponse{
 		BuildVersion: BuildVersion,
 		BuildTime:    BuildTime,
-	}
-	return c.JSONPretty(http.StatusOK, b, "    ")
+	}, "    ")
 }

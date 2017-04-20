@@ -1,8 +1,6 @@
 package provider
 
 import (
-	"crypto/x509"
-
 	gp "github.com/krostar/nebulo-golib/provider"
 	"github.com/krostar/nebulo-server/user"
 )
@@ -15,7 +13,9 @@ type Provider interface {
 	Create(userToAdd *user.User) (u *user.User, err error)
 	Delete(u *user.User) (err error)
 
-	FindByPublicKey(publicKeyAlgo x509.PublicKeyAlgorithm, publicKey interface{}) (u *user.User, err error)
+	FindByPublicKey(publicKey interface{}) (u *user.User, err error)
+	FindByPublicKeyDER(publicKeyDER []byte) (u *user.User, err error)
+	FindByPublicKeyDERBase64(publicKeyDERBase64 string) (u *user.User, err error)
 	FindByID(ID int) (u *user.User, err error)
 
 	Update(u *user.User, fields map[string]interface{}) (err error)

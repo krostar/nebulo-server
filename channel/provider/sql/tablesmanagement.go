@@ -20,14 +20,17 @@ func (p *Provider) DropTables() (err error) {
 
 // CreateIndexes create constrains and indexes on channels tables
 func (p *Provider) CreateIndexes() (err error) {
+	c := &channel.Channel{}
 	cum := &channel.UserMembership{}
 
-	userMembershipModel := p.DB.Model(cum)
-	if err = userMembershipModel.
-		AddUniqueIndex("uniq_membership", "channel_id", "user_id").Error; err != nil {
+	if err = p.DB.Model(c).
+		AddUniqueIndex("uniq_channel", "name", "creator_id").
+		AddForeignKey("creator_id", "users(id)", "CASCADE", "CASCADE").Error; err != nil {
 		return err
 	}
-	return userMembershipModel.
+
+	return p.DB.Model(cum).
+		AddUniqueIndex("uniq_membership", "channel_id", "user_id").
 		AddForeignKey("user_id", "users(id)", "CASCADE", "CASCADE").
 		AddForeignKey("channel_id", "channels(id)", "CASCADE", "CASCADE").Error
 }

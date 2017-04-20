@@ -6,9 +6,10 @@ import (
 
 	"github.com/krostar/nebulo-golib/router/httperror"
 	"github.com/krostar/nebulo-golib/tools/cert"
+	"github.com/labstack/echo"
+
 	"github.com/krostar/nebulo-server/user"
 	up "github.com/krostar/nebulo-server/user/provider"
-	"github.com/labstack/echo"
 )
 
 var (
@@ -38,7 +39,7 @@ func mAuth(next echo.HandlerFunc, c echo.Context) (err error) {
 	}
 
 	c.Set("userCert", userCert)
-	u, err := up.P.FindByPublicKey(userCert.PublicKeyAlgorithm, userCert.PublicKey)
+	u, err := up.P.FindByPublicKey(userCert.PublicKey)
 	if err != nil {
 		return httperror.HTTPUnauthorizedError(user.ErrNotFound)
 	}

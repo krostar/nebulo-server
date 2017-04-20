@@ -13,7 +13,14 @@ func ChanInfos(c echo.Context) (err error) {
 		return httperror.UserNotFound()
 	}
 
-	// TODO: we need same as chansList but for one channel
+	// TODO: we need, return last 20channels, offset to choose one
+	/*
+		- channel uniq repr
+		- channel name
+		- channel users participants
+		- channel creation / last update
+		- channel last message
+	*/
 
 	return c.JSONPretty(http.StatusOK, nil, "    ")
 }

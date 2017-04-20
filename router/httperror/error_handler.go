@@ -3,10 +3,11 @@ package httperror
 import (
 	"net/http"
 
-	"github.com/krostar/nebulo-golib/router/httperror"
-
 	"github.com/krostar/nebulo-golib/log"
+	"github.com/krostar/nebulo-golib/router/httperror"
 	"github.com/labstack/echo"
+
+	rlog "github.com/krostar/nebulo-server/router/log"
 )
 
 // ErrorHandler handle all errors catched by echo allowing us to format the output
@@ -48,6 +49,11 @@ func ErrorHandler(err error, c echo.Context) {
 			log.Errorln("Unhandled internal error:", err)
 			errors = httperror.New(http.StatusInternalServerError, "_", httperror.HTTPInternalServerError(nil))
 		}
+	}
+
+	err = rlog.Request(c, errors.Code, 0, 0)
+	if err != nil {
+		log.Warningln(err)
 	}
 
 	if err := c.JSON(errors.Code, errors); err != nil {

@@ -19,5 +19,5 @@ func (p *Provider) CreateIndexes() (err error) {
 	u := &user.User{}
 
 	userModel := p.DB.Model(u)
-	return userModel.AddUniqueIndex("uniq_user", "key_public_der", "key_public_algorithm").Error
+	return userModel.AddUniqueIndex("uniq_user", "key_public_der").Error
 }
