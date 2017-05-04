@@ -19,7 +19,7 @@ type Channel struct {
 	ID        int `json:"-" gorm:"column:id; not null"`
 	CreatorID int `json:"-" gorm:"column:creator_id; not null"`
 
-	Name             string      `json:"name" gorm:"column:name; size:42"`
+	Name             string      `json:"name" gorm:"column:name; size:64"`
 	Created          time.Time   `json:"created" gorm:"column:created; not null" sql:"DEFAULT:current_timestamp"`
 	Creator          user.User   `json:"creator" gorm:"ForeignKey:CreatorID; save_associations:false"`
 	Members          []user.User `json:"members" gorm:"many2many:channel_memberships"`

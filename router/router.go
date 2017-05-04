@@ -100,11 +100,11 @@ func setupRoutes() {
 	// identified users are required to make these calls
 	//     that's why everything using channel group use auth middleware
 	channel := router.Group("/chan", puMdw["auth"])
-	// channel.GET("/:chan", handler.ChanInfos) //get info for a specific channel
-	channel.POST("", handler.ChanCreate) //add a new channel
-	// channel.PUT("/:chan", handler.ChanEdit)      //edit info of a specific channel
-	// channel.DELETE("/:chan", handler.ChanDelete) //delete a specific channel
-	//
+	channel.GET("/:chan", handler.ChanInfos)     //get info for a specific channel
+	channel.POST("", handler.ChanCreate)         //add a new channel
+	channel.PUT("/:chan", handler.ChanEdit)      //edit info of a specific channel
+	channel.DELETE("/:chan", handler.ChanDelete) //delete a specific channel
+
 	// // domain/chan/:chan/messages/...
 	// messages := channel.Group("/:chan/messages")
 	// messages.GET("/", handler.ChanMessagesList)      //get message list for a specific channel
