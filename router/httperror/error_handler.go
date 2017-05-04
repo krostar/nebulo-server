@@ -51,6 +51,7 @@ func ErrorHandler(err error, c echo.Context) {
 		}
 	}
 
+	log.Logf(log.ERROR, -1, "CALL %q: %v", c.Path(), err)
 	err = rlog.Request(c, errors.Code, 0, 0)
 	if err != nil {
 		log.Warningln(err)

@@ -35,7 +35,7 @@ type UserMembership struct {
 
 	User    user.User `json:"user" gorm:"ForeignKey:UserID; save_associations:false"`
 	Invited time.Time `json:"invited" gorm:"column:invited; not null" sql:"DEFAULT:current_timestamp"`
-	Joined  time.Time `json:"joined" gorm:"column:joined"`
+	Joined  time.Time `json:"joined" gorm:"column:joined" sql:"DEFAULT:NULL"`
 }
 
 // TableName is the table name in database

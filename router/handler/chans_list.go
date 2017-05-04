@@ -5,22 +5,36 @@ import (
 
 	"github.com/krostar/nebulo-golib/router/httperror"
 	"github.com/labstack/echo"
+
+	cp "github.com/krostar/nebulo-server/channel/provider"
 )
 
+// ChansListRequest store the request body for a ChansList request
+type ChansListRequest struct {
+	Offset int `json:"offset"`
+	Limit  int `json:"limit"`
+}
+
 func ChansList(c echo.Context) (err error) {
-	_, err = GetLoggedUser(c.Get("user"))
+	u, err := GetLoggedUser(c.Get("user"))
 	if err != nil {
 		return httperror.UserNotFound()
 	}
 
-	// TODO: we need, return last 20channels, offset to choose one
-	/*
-		- channel uniq repr
-		- channel name
-		- channel users participants
-		- channel creation / last update
-		- channel last message
-	*/
+	// bind the request body to the struct
+	r := &ChansListRequest{}
+	if err = c.Bind(r); err != nil {
+		return httperror.HTTPBadRequestError(err)
+	}
 
-	return c.JSONPretty(http.StatusOK, nil, "    ")
+	if r.Limit < 1 || r.Limit > 20 {
+		r.Limit = 20
+	}
+
+	list, err := cp.P.List(*u, r.Offset, r.Limit)
+	if err != nil {
+		return httperror.HTTPInternalServerError(err)
+	}
+
+	return c.JSONPretty(http.StatusOK, list, "    ")
 }

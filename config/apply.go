@@ -10,6 +10,9 @@ import (
 	cp "github.com/krostar/nebulo-server/channel/provider"
 	cpMySQL "github.com/krostar/nebulo-server/channel/provider/mysql"
 	cpSQLite "github.com/krostar/nebulo-server/channel/provider/sqlite"
+	mp "github.com/krostar/nebulo-server/message/provider"
+	mpMySQL "github.com/krostar/nebulo-server/message/provider/mysql"
+	mpSQLite "github.com/krostar/nebulo-server/message/provider/sqlite"
 	up "github.com/krostar/nebulo-server/user/provider"
 	upMySQL "github.com/krostar/nebulo-server/user/provider/mysql"
 	upSQLite "github.com/krostar/nebulo-server/user/provider/sqlite"
@@ -110,18 +113,24 @@ func initProviders(pc *providerOptions) (err error) {
 		if err = cpSQLite.Init(); err != nil {
 			return fmt.Errorf("sqlite channel providers initialization failed: %v", err)
 		}
+		if err = mpSQLite.Init(); err != nil {
+			return fmt.Errorf("sqlite message providers initialization failed: %v", err)
+		}
 	case "mysql":
 		if err = upMySQL.Init(); err != nil {
-			return fmt.Errorf("sqlite user providers initialization failed: %v", err)
+			return fmt.Errorf("mysql user providers initialization failed: %v", err)
 		}
 		if err = cpMySQL.Init(); err != nil {
-			return fmt.Errorf("sqlite channel providers initialization failed: %v", err)
+			return fmt.Errorf("mysql channel providers initialization failed: %v", err)
+		}
+		if err = mpMySQL.Init(); err != nil {
+			return fmt.Errorf("mysql message providers initialization failed: %v", err)
 		}
 	default:
 		return fmt.Errorf("providers initialization failed: unknown %v provider", pc.Type)
 	}
 
-	log.Infof("users and channels provided via %s", pc.Type)
+	log.Infof("users, channels and messages provided via %s", pc.Type)
 	return nil
 }
 
@@ -131,6 +140,9 @@ func resetProviders(pdc *gp.DefaultConfig) (err error) {
 		if err == nil {
 			err = up.P.DropTables()
 		}
+		if err == nil {
+			err = mp.P.DropTables()
+		}
 	}
 	if err == nil && pdc.CreateTablesIfNotExists {
 		err = cp.P.CreateTables()
@@ -138,10 +150,16 @@ func resetProviders(pdc *gp.DefaultConfig) (err error) {
 			err = up.P.CreateTables()
 		}
 		if err == nil {
+			err = mp.P.CreateTables()
+		}
+		if err == nil {
 			err = cp.P.CreateIndexes()
 		}
 		if err == nil {
 			err = up.P.CreateIndexes()
+		}
+		if err == nil {
+			err = mp.P.CreateIndexes()
 		}
 	}
 	return err

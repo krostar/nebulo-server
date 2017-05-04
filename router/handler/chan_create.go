@@ -36,6 +36,7 @@ func ChanCreate(c echo.Context) (err error) {
 	if err != nil {
 		return err
 	}
+	members = append(members, *u)
 
 	newChannel, err := cp.P.Create(name, *u, members)
 	if err != nil {

@@ -3,6 +3,7 @@ package log
 import (
 	"fmt"
 	"net"
+	"strings"
 	"time"
 
 	"github.com/krostar/nebulo-server/router/handler"
@@ -48,8 +49,13 @@ func Request(c echo.Context, responseStatus int, duration time.Duration, respons
 		rxBytes = "0"
 	}
 
+	uri := req.URL.RequestURI()
+	uris := strings.Split(uri, "?")
+	uris[0] = c.Path()
+	uri = strings.Join(uris, "?")
+
 	log.Requestf("%s -%s - \"%s %s\" %d %dms %s<>%d %q",
-		remoteIP, loggedUser, req.Method, req.URL.RequestURI(), responseStatus,
+		remoteIP, loggedUser, req.Method, uri, responseStatus,
 		duration.Nanoseconds()/1000000, rxBytes, responseSize, req.UserAgent())
 	return nil
 }
