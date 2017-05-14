@@ -2,6 +2,8 @@
 
 Nebulo is a secure way of instant messaging that respect and protect your privacy.
 
+/!\\ This project is a school project, it's not finished, it's not 100% working, don't use it unless you know what you do /!\\
+
 [![Build status](https://travis-ci.org/krostar/nebulo-server.svg?branch=dev)](https://travis-ci.org/krostar/nebulo-server) [![Go Report Card](https://goreportcard.com/badge/github.com/krostar/nebulo-server)](https://goreportcard.com/report/github.com/krostar/nebulo-server) [![Codebeat status](https://codebeat.co/badges/65b96953-23e6-4440-8be1-84ccc75e7090)](https://codebeat.co/projects/github-com-krostar-nebulo-server-dev) [![Coverage status](https://coveralls.io/repos/github/krostar/nebulo-server/badge.svg?branch=dev)](https://coveralls.io/github/krostar/nebulo-server?branch=dev)
 
 ## Usage
